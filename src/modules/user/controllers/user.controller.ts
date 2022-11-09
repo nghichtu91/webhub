@@ -1,26 +1,47 @@
-import { Controller, Get, Res } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  Param,
+  Patch,
+  HttpStatus,
+  Body,
+} from '@nestjs/common';
 import { UserService } from '../services';
-import { Response } from 'express';
+import { JwtAuth } from '@shared';
+import {
+  ApiAcceptedResponse,
+  ApiBadRequestResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+import { UpdateUserDTO } from '../dtos/update.dto';
 
-@Controller()
+@Controller('user')
+@ApiTags('User')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-  @Get('/user')
-  async profile(@Res() res: Response) {
-    try {
-      // const data: CreateUserDTO = {
-      //   userName: 'thanhss2',
-      //   passsWord: '123456789',
-      //   email: 'thanh@gmail.com',
-      // };
-      // const t = await this.userService.create(data);
-      // const t = await this.userService.findByUserName('thanhss');
-      // console.log(t.userName);
-    } catch (error) {
-      console.log(error);
-    }
-    return res.render('login', {
-      // messages: 'xin chào nhật thành',
-    });
+  @JwtAuth()
+  @Get(':id')
+  async getUserById(@Param('id') userId: string) {
+    return {
+      messages: `xin chào nhật thành ${userId}`,
+    };
+  }
+  @JwtAuth()
+  @Patch(':id')
+  @ApiOperation({ summary: 'Cập nhật thông tin' })
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiBadRequestResponse({
+    description: 'Có lỗi trong quá trình cập nhật!',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Chưa đăng nhập',
+  })
+  async updateUser(@Param('id') userId: string, @Body() data: UpdateUserDTO) {
+    return {
+      messages: `xin chào nhật thành ${userId}`,
+    };
   }
 }

@@ -4,10 +4,13 @@ import { UsersModule } from '@user/user.module';
 import { SessionSerializer } from './session.serializer';
 import { JwtAuthController } from './controllers';
 import { AuthService } from './services';
+import { JwtRefreshStrategy, JwtAuthStrategy, LocalStrategy } from '@shared';
+import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports: [
     UsersModule,
+    PassportModule,
     JwtModule.register({
       secret: 'jx1porttal',
       signOptions: {
@@ -16,6 +19,12 @@ import { AuthService } from './services';
     }),
   ],
   controllers: [JwtAuthController],
-  providers: [AuthService, SessionSerializer],
+  providers: [
+    AuthService,
+    JwtRefreshStrategy,
+    JwtAuthStrategy,
+    LocalStrategy,
+    SessionSerializer,
+  ],
 })
 export class AuthModule {}

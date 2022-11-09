@@ -6,6 +6,7 @@ import {
   ApiOperation,
   ApiCreatedResponse,
   ApiBadRequestResponse,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { CreateUserDTO } from '@modules/user/dtos';
 import { LoginInputDTO } from '../dtos';
@@ -30,7 +31,7 @@ export class JwtAuthController {
     return this.authService.jwtLogin(data);
   }
 
-  // @JwtRefreshAuth()
+  @ApiBearerAuth()
   @Post('refresh')
   refresh() {
     return {};
