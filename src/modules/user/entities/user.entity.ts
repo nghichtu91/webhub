@@ -152,4 +152,16 @@ export class UserEntity extends BaseEntity implements IBaseModel<IUserModel> {
       this.passWord
     );
   }
+  @Column({
+    type: 'varchar',
+    name: 'cQuestion',
+    default: 0,
+  })
+  question?: string;
+  @Column({
+    type: 'varchar',
+    name: 'cAnswer',
+    default: 0,
+  })
+  answer?: string;
 }

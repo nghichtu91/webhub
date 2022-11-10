@@ -16,6 +16,8 @@ export interface IUserModel {
   point5?: number;
   point6?: number;
   point7?: number;
+  question?: string;
+  answer?: string;
 }
 
 export class UserModel implements IUserModel {
@@ -35,4 +37,6 @@ export class UserModel implements IUserModel {
   point5?: number;
   point6?: number;
   point7?: number;
+  question?: string;
+  answer?: string;
 }
