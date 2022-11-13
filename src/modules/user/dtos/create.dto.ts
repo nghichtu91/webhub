@@ -12,6 +12,12 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export type ICreateUserDTO = Omit<IUserModel, 'createAt' | 'updateAt'>;
 
+export enum UserRole {
+  Admin = 'Admin',
+  Moderator = 'Moderator',
+  User = 'User',
+}
+
 export class CreateUserDTO implements ICreateUserDTO {
   @IsNotEmpty()
   @IsString()
@@ -40,10 +46,18 @@ export class CreateUserDTO implements ICreateUserDTO {
   passWord: string;
 
   @IsOptional()
-  @ApiProperty()
+  @ApiProperty({ required: false })
   email?: string;
 
   @IsOptional()
   @ApiProperty()
   phone?: string;
+
+  @IsOptional()
+  @ApiProperty()
+  question?: string;
+
+  @IsOptional()
+  @ApiProperty()
+  answer?: string;
 }

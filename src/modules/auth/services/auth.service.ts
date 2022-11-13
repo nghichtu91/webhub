@@ -19,7 +19,6 @@ export class AuthService {
   async validateUser(username: string, password: string): Promise<UserEntity> {
     const users = await this.userService.findByUserName(username);
     const user = users[0];
-    console.log(password);
     if (!!user && user.comparePassword(password)) {
       return user;
     }
@@ -34,12 +33,13 @@ export class AuthService {
     } else return this.getAuthToken(user);
   }
 
-  // async jwtRefresh(data: IReqUser) {
-  //   const user = await this.userService.findByUserName(data.username);
-  //   if (!user) {
-  //     throw new UnauthorizedException();
-  //   } else return this.getAuthToken(user);
-  // }
+  async jwtRefresh(data: IReqUser) {
+    const users = await this.userService.findByUserName(data.username);
+    const user = users[0];
+    if (!user) {
+      throw new UnauthorizedException();
+    } else return this.getAuthToken(user);
+  }
 
   async jwtRegister(data: CreateUserDTO) {
     const user = await this.userService.create(data);
@@ -48,19 +48,18 @@ export class AuthService {
 
   getAuthToken(user: Partial<UserEntity>) {
     const subject = { id: user.id };
-
     const payload = {
       id: user.id,
       username: user.userName,
+      email: user.email,
       roles: [],
     };
-
     return {
       accessToken: this.jwtService.sign(payload, {
-        expiresIn: parseDuration('100000', 's'),
+        expiresIn: parseDuration('1000000', 's'),
       }),
       refreshToken: this.jwtService.sign(subject, {
-        expiresIn: parseDuration('100000', 's'),
+        expiresIn: parseDuration('10000000', 's'),
       }),
     }; // authToken
   }

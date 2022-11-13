@@ -1,3 +1,4 @@
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 export interface IUserModel {
   id?: string;
   userName: string;
@@ -16,6 +17,8 @@ export interface IUserModel {
   point5?: number;
   point6?: number;
   point7?: number;
+  question?: string;
+  answer?: string;
 }
 
 export class UserModel implements IUserModel {
@@ -35,4 +38,10 @@ export class UserModel implements IUserModel {
   point5?: number;
   point6?: number;
   point7?: number;
+
+  @ApiProperty()
+  question?: string;
+
+  @ApiHideProperty()
+  answer?: string;
 }

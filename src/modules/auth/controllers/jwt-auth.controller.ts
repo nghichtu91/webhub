@@ -1,4 +1,4 @@
-import { Body, Controller, Post, HttpCode } from '@nestjs/common';
+import { Body, Controller, Post, HttpCode, HttpStatus } from '@nestjs/common';
 import {
   ApiTags,
   ApiResponse,
@@ -6,6 +6,8 @@ import {
   ApiOperation,
   ApiCreatedResponse,
   ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiBody,
 } from '@nestjs/swagger';
 import { CreateUserDTO } from '@modules/user/dtos';
 import { LoginInputDTO } from '../dtos';
@@ -30,18 +32,17 @@ export class JwtAuthController {
     return this.authService.jwtLogin(data);
   }
 
-  // @JwtRefreshAuth()
+  @ApiBearerAuth()
   @Post('refresh')
   refresh() {
     return {};
   }
 
-  // @JwtAuth()
   @Post('register')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Tạo tài khoản' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.CREATED,
     description: 'Tạo tại thành công!',
   })
   @ApiCreatedResponse({
@@ -50,6 +51,7 @@ export class JwtAuthController {
   @ApiBadRequestResponse({
     description: 'Có lỗi trong quá trình đăng ký!',
   })
+  @ApiBody({ type: CreateUserDTO })
   register(@Body() data: CreateUserDTO) {
     return this.authService.jwtRegister(data);
   }
