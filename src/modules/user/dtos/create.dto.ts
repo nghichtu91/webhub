@@ -8,7 +8,7 @@ import {
   Matches,
 } from 'class-validator';
 import { IsUserAlreadyExist } from '../validators/IsUserAlreadyExist';
-import { ApiProperty, ApiQuery } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 
 export type ICreateUserDTO = Omit<IUserModel, 'createAt' | 'updateAt'>;
 

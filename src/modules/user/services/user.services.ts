@@ -1,8 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UserEntity } from '../entities';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { CreateUserDTO } from '../dtos/create.dto';
+import { ChangePassWordDTO, UpdateUserDTO } from '../dtos';
+import { createHash } from 'node:crypto';
 
 @Injectable()
 export class UserService {
@@ -45,5 +47,62 @@ export class UserService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  async getUser(userName: string) {
+    const users = await this.userRepository.query(
+      `select * from Account_Info where cAccName = @0`,
+      [userName],
+    );
+    return users[0];
+  }
+  /**
+   *
+   * @param userName
+   * @param data
+   * @returns
+   */
+  update(userName: string, data: UpdateUserDTO) {
+    const ff = this.userRepository.update(
+      {
+        userName: userName,
+      },
+      data,
+    );
+    return ff;
+  }
+
+  /**
+   * @class UserService
+   * @author nhatthanh5891
+   * @description cập nhật lại mật khẩu của tài khoản.
+   * @param {string} userName
+   * @param {ChangePassWordDTO} data
+   * @returns {Promise<UpdateResult>}
+   */
+  async changePassword(
+    userName: string,
+    data: ChangePassWordDTO,
+  ): Promise<UpdateResult> {
+    const passwordMd5 = createHash('md5').update(data.passWord).digest('hex');
+    const updatePassword = this.userRepository.update(
+      {
+        userName: userName,
+      },
+      { passWord: passwordMd5 },
+    );
+    return updatePassword;
+  }
+
+  addMoney(userName: string, money: number) {
+    const adding = this.userRepository.update(
+      {
+        userName: userName,
+      },
+      {
+        point: () => 'point' + money,
+      },
+    );
+    return adding;
   }
 }

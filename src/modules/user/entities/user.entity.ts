@@ -12,7 +12,6 @@ import {
 } from 'typeorm';
 import { IUserModel } from '../dtos';
 import { IBaseModel } from '@shared';
-import {} from '@nestjs/typeorm';
 
 @Entity({ name: 'Account_info' })
 export class UserEntity extends BaseEntity implements IBaseModel<IUserModel> {
@@ -91,9 +90,8 @@ export class UserEntity extends BaseEntity implements IBaseModel<IUserModel> {
 
   // point
   @Column({
-    type: 'smallint',
     name: 'nExtPoint',
-    insert: true,
+    type: 'smallint',
   })
   point = 1;
 
@@ -143,6 +141,7 @@ export class UserEntity extends BaseEntity implements IBaseModel<IUserModel> {
     type: 'smallint',
     name: 'nExtPoint7',
     default: 0,
+    select: false,
   })
   point7 = 0;
 
