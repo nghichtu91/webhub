@@ -3,11 +3,11 @@ import {
   Injectable,
   Controller,
   Post,
-  Get,
   Body,
   Param,
   HttpException,
   HttpStatus,
+  Get,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -17,6 +17,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { JwtAuth, ReqUser, User } from '@shared';
+import { PaymentCallbackDTO } from '../dtos/callback.dto';
 import { CreatePaymentDTO } from '../dtos/create.dto';
 import { PaymentService } from '../services';
 
@@ -35,6 +36,20 @@ export class PaymentController {
     console.log('23');
   }
 
+  @Post('callbackvvvv')
+  @ApiOperation({
+    summary: 'callback thẻ nạp',
+  })
+  @ApiBody({ type: PaymentCallbackDTO })
+  cardCallback(@Body() callBody: PaymentCallbackDTO) {
+    console.log(callBody);
+    throw new HttpException(
+      'Cổng nạp không hỗ trợ phương thức thanh toán này!',
+      200,
+    );
+  }
+
+  //#region payment
   /**
    * @description api nạp thẻ và ghi thẻ vào đợi kiểm tra
    * @param {Gateways} geteway
@@ -42,8 +57,8 @@ export class PaymentController {
    * @param {ReqUser} currentUser
    * @returns
    */
-  @Post(':gateway')
-  @JwtAuth()
+  @Post('gateway/:gateway')
+  // @JwtAuth()
   @ApiOperation({ description: 'Nạp thẻ', summary: 'Nạp thẻ' })
   @ApiBody({ type: CreatePaymentDTO })
   @ApiResponse({
@@ -56,6 +71,7 @@ export class PaymentController {
     @Body() body: CreatePaymentDTO,
     @User() currentUser: ReqUser,
   ) {
+    console.log(body.cardPin);
     if (!Object.values(Gateways).includes(geteway)) {
       throw new HttpException(
         'Cổng nạp không hỗ trợ phương thức thanh toán này!',
@@ -68,16 +84,17 @@ export class PaymentController {
     //add field miss
     const newPaymentData: CreatePaymentDTO = {
       ...body,
-      userName: currentUser.username,
+      userName: currentUser?.username || '',
       transactionId: '23',
       transaction: '232333',
       transactionCode: '23',
       gateway: geteway,
     };
 
-    if (Gateways.AMT === geteway) {
-      newPaymentData.cardType = CardTypes.ATM;
-    }
-    return this.paymentService.create(newPaymentData);
+    // if (Gateways.AMT === geteway) {
+    //   newPaymentData.cardType = CardTypes.ATM;
+    // }
+    // return this.paymentService.create(newPaymentData);
   }
+  //#endregion
 }
