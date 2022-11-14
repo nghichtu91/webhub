@@ -13,7 +13,7 @@ import { IPaymentModel } from '../dtos';
 import { IBaseModel } from '@shared';
 import { CardTypes } from '@config';
 
-@Entity({ name: 'Account_info' })
+@Entity({ name: 'payment_card_log' })
 export class PaymentEntity
   extends BaseEntity
   implements IBaseModel<IPaymentModel>

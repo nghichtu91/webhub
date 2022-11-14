@@ -8,31 +8,45 @@ import {
   Matches,
   IsNumber,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { CardTypes } from '@config';
 
 export type ICreatePaymentDTO = Pick<
   IPaymentModel,
-  'cardType' | 'cardSeri' | 'cardValue' | 'comment' | 'cardPin'
+  | 'cardType'
+  | 'cardSeri'
+  | 'cardValue'
+  | 'comment'
+  | 'cardPin'
+  | 'transactionId'
+  | 'transaction'
+  | 'transactionCode'
+  | 'userName'
+  | 'gateway'
 >;
 
 export class CreatePaymentDTO implements ICreatePaymentDTO {
-  // @IsNumber()
-  // @ApiProperty()
-  // coin: number;
-
   @ApiProperty({ enum: CardTypes })
   cardType?: CardTypes;
 
-  @IsString()
   @ApiProperty()
   cardPin?: string;
 
-  @IsString()
   @ApiProperty()
   cardSeri?: string;
 
   @IsNumber()
   @ApiProperty()
   cardValue?: number;
+
+  @ApiHideProperty()
+  transactionId?: string;
+  @ApiHideProperty()
+  transaction?: string;
+  @ApiHideProperty()
+  transactionCode?: string;
+  @ApiHideProperty()
+  userName: string;
+  @ApiHideProperty()
+  gateway?: string;
 }

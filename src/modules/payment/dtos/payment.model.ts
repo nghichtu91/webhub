@@ -2,7 +2,7 @@ import { CardTypes } from '@config';
 
 export interface IPaymentModel {
   id?: string;
-  userName: string;
+  userName?: string;
 
   coin: number;
   gateway?: string;
@@ -23,7 +23,7 @@ export interface IPaymentModel {
 export class PaymentModel implements IPaymentModel {
   status: number;
   id?: string;
-  userName: string;
+  userName?: string;
   coin: number;
   gateway?: string;
   cardType?: CardTypes;

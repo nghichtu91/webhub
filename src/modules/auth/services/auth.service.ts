@@ -56,10 +56,10 @@ export class AuthService {
     };
     return {
       accessToken: this.jwtService.sign(payload, {
-        expiresIn: parseDuration('1000000', 's'),
+        expiresIn: parseDuration('1000000', 'second'),
       }),
       refreshToken: this.jwtService.sign(subject, {
-        expiresIn: parseDuration('10000000', 's'),
+        expiresIn: parseDuration('20000000', 'second'),
       }),
     }; // authToken
   }

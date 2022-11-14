@@ -23,7 +23,7 @@ import { PaymentEntity } from '../payment/entities';
         idleTimeoutMillis: 30000,
       },
       logging: true,
-      logger: 'debug',
+      logger: 'simple-console',
       options: {
         encrypt: false,
       },

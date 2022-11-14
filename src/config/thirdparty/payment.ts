@@ -3,8 +3,7 @@ export enum CardTypes {
   MOBI = 'MobiPhone',
   ATM = 'Atm',
 }
-export enum gateways {
-  TEST1 = 'test1',
-  TEST2 = 'test2',
-  TEST3 = 'test3',
+export enum Gateways {
+  AMT = 'atm',
+  MOBI_CARD = 'mobi',
 }

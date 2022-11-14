@@ -1,4 +1,12 @@
-import { Body, Controller, Post, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  HttpCode,
+  HttpStatus,
+  ClassSerializerInterceptor,
+  UseInterceptors,
+} from '@nestjs/common';
 import {
   ApiTags,
   ApiResponse,
@@ -12,9 +20,11 @@ import {
 import { CreateUserDTO } from '@modules/user/dtos';
 import { LoginInputDTO } from '../dtos';
 import { AuthService } from '../services';
+import { LocalAuth } from '@shared';
 
 @Controller('auth')
 @ApiTags('Auth')
+@UseInterceptors(ClassSerializerInterceptor)
 export class JwtAuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -28,6 +38,7 @@ export class JwtAuthController {
   @ApiUnauthorizedResponse({
     description: 'Đăng nhập không thành công!',
   })
+  @LocalAuth()
   login(@Body() data: LoginInputDTO) {
     return this.authService.jwtLogin(data);
   }
