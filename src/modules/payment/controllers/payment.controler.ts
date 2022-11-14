@@ -1,4 +1,11 @@
-import { CardTypes, Gateways } from '@config';
+import { createHash } from 'node:crypto';
+import {
+  CardTypes,
+  Commands,
+  Gateways,
+  PARTNER_ID,
+  PARTNER_KEY,
+} from '@config';
 import {
   Injectable,
   Controller,
@@ -43,16 +50,12 @@ export class PaymentController {
   @ApiBody({ type: PaymentCallbackDTO })
   cardCallback(@Body() callBody: PaymentCallbackDTO) {
     console.log(callBody);
-    throw new HttpException(
-      'Cổng nạp không hỗ trợ phương thức thanh toán này!',
-      200,
-    );
   }
 
   //#region payment
   /**
    * @description api nạp thẻ và ghi thẻ vào đợi kiểm tra
-   * @param {Gateways} geteway
+   * @param {Gateways} gateway
    * @param {CreatePaymentDTO} data
    * @param {ReqUser} currentUser
    * @returns
@@ -67,20 +70,16 @@ export class PaymentController {
   })
   @ApiNotFoundResponse({ description: 'Cổng nạp không hỗ trợ.' })
   checkout(
-    @Param('gateway') geteway: Gateways,
+    @Param('gateway') gateway: Gateways,
     @Body() body: CreatePaymentDTO,
     @User() currentUser: ReqUser,
   ) {
-    console.log(body.cardPin);
-    if (!Object.values(Gateways).includes(geteway)) {
+    if (!Object.values(Gateways).includes(gateway)) {
       throw new HttpException(
         'Cổng nạp không hỗ trợ phương thức thanh toán này!',
         400,
       );
     }
-
-    // call nhà cung cấp
-
     //add field miss
     const newPaymentData: CreatePaymentDTO = {
       ...body,
@@ -88,13 +87,22 @@ export class PaymentController {
       transactionId: '23',
       transaction: '232333',
       transactionCode: '23',
-      gateway: geteway,
+      gateway: gateway,
     };
+    // call nhà cung cấp
+    if (Gateways.AMT === gateway) {
+      newPaymentData.cardType = CardTypes.ATM;
+    }
 
-    // if (Gateways.AMT === geteway) {
-    //   newPaymentData.cardType = CardTypes.ATM;
-    // }
-    // return this.paymentService.create(newPaymentData);
+    if (Gateways.MOBI_CARD === gateway) {
+      //Chuẩn mã hoá MD5, thứ tự mã hóa chữ ký: partner_key + code + command + partner_id + request_id+serial+telco
+      const request_id = '3';
+      const signStr = `${PARTNER_KEY}${body.cardPin}${Commands.CHARGING}${PARTNER_ID}${request_id}${body.cardSeri}${body.cardType}`;
+      const sign = createHash('md5').update(signStr).digest('hex');
+      console.log(sign);
+    }
+
+    return this.paymentService.create(newPaymentData);
   }
   //#endregion
 }
