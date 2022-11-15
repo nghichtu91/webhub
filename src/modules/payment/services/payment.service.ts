@@ -1,11 +1,15 @@
+import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AxiosResponse } from 'axios';
+import { Observable } from 'rxjs';
 import { Repository } from 'typeorm';
+import { IPaymentResponse } from '../dtos';
 import { CreatePaymentDTO } from '../dtos/create.dto';
 import { PaymentEntity } from '../entities';
 
 interface IPaymentService {
-  checkCard?: any;
+  checkCardMobi?: any;
 }
 
 @Injectable()
@@ -13,10 +17,14 @@ export class PaymentService implements IPaymentService {
   constructor(
     @InjectRepository(PaymentEntity)
     private paymentRepo: Repository<PaymentEntity>,
+    private readonly httpService: HttpService,
   ) {}
 
-  checkCard() {
-    console.log('22');
+  checkCardMobi(data: any): Observable<AxiosResponse<IPaymentResponse>> {
+    return this.httpService.post<IPaymentResponse>(
+      'http://naptudong.com/chargingws/v2',
+      data,
+    );
   }
 
   create(data: CreatePaymentDTO) {

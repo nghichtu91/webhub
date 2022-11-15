@@ -15,6 +15,8 @@ export type ICreatePaymentDTO = Pick<
   | 'transactionCode'
   | 'userName'
   | 'gateway'
+  | 'status'
+  | 'coin'
 >;
 
 export class CreatePaymentDTO implements ICreatePaymentDTO {
@@ -49,4 +51,13 @@ export class CreatePaymentDTO implements ICreatePaymentDTO {
 
   @ApiHideProperty()
   gateway?: string;
+
+  @ApiHideProperty()
+  comment?: string;
+
+  @ApiHideProperty()
+  status?: number;
+
+  @ApiHideProperty()
+  coin?: number;
 }

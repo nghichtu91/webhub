@@ -1,3 +1,4 @@
+import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PaymentController } from './controllers';
@@ -5,7 +6,7 @@ import { PaymentEntity } from './entities';
 import { PaymentService } from './services';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([PaymentEntity])],
+  imports: [TypeOrmModule.forFeature([PaymentEntity]), HttpModule],
   providers: [PaymentService],
   controllers: [PaymentController],
   exports: [PaymentService],
