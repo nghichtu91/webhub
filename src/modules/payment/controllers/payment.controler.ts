@@ -16,6 +16,7 @@ import {
   HttpException,
   HttpStatus,
   Get,
+  Logger,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -29,12 +30,18 @@ import { PaymentCallbackDTO } from '../dtos/callback.dto';
 import { CreatePaymentDTO } from '../dtos/create.dto';
 import { PaymentService } from '../services';
 import { firstValueFrom } from 'rxjs';
+import { UserService } from '@modules/user/services';
 
 @Injectable()
 @Controller('payments')
 @ApiTags('Payment')
 export class PaymentController {
-  constructor(private readonly paymentService: PaymentService) {}
+  private readonly logger = new Logger(PaymentController.name);
+
+  constructor(
+    private readonly paymentService: PaymentService,
+    private readonly userService: UserService,
+  ) {}
 
   @Get()
   @JwtAuth()
@@ -81,11 +88,10 @@ export class PaymentController {
         400,
       );
     }
-
+    const { username } = currentUser;
     if (Gateways.MOBI_CARD === gateway) {
-      //Chuẩn mã hoá MD5, thứ tự mã hóa chữ ký: partner_key + code + command + partner_id + request_id+serial+telco
       const { cardPin, cardSeri, cardType, cardValue } = body;
-      const request_id = `${currentUser.username}${cardSeri}`;
+      const request_id = `${username}${cardSeri}`;
       const signStr = `${PARTNER_KEY}${cardPin}${Commands.CHARGING}${PARTNER_ID}${request_id}${cardSeri}${cardType}`;
       const sign = createHash('md5').update(signStr).digest('hex');
       const cardInfo = {
@@ -132,25 +138,23 @@ export class PaymentController {
             'Thể được thêm vào hệ thống, đang đợi kiểm tra!',
             HttpStatus.ACCEPTED,
           );
-        // card sai mệnh giá
+        // card sai mệnh giá, card đúng
         case PaymentStatus.FAILEDAMOUNT:
-          newPaymentData.coin = data.value / 10;
-          newPaymentData.cardValue = data.value;
-          this.paymentService.create(newPaymentData);
-          throw new HttpException(
-            'Thể được thêm vào hệ thống, nhưng sai mệnh giá.',
-            HttpStatus.ACCEPTED,
-          );
-        // card đúng
         case PaymentStatus.SUCCEEDED:
-          newPaymentData.coin = data.value / 10;
+          const coin = data.value / 10;
+          newPaymentData.coin = coin;
           newPaymentData.cardValue = data.value;
           this.paymentService.create(newPaymentData);
+          this.userService.addMoney(currentUser.username, coin);
+          this.logger.log(`Tài khoản ${username} nạp thẻ thành công mệt giá.`);
           throw new HttpException(
-            'Nạp thẻ thành công, chúc bạn chơi game vui vẻ!!',
+            PaymentStatus.SUCCEEDED === data.status
+              ? 'Nạp thẻ thành công, chúc bạn chơi game vui vẻ!!'
+              : 'Thể được thêm vào hệ thống, nhưng sai mệnh giá.',
             HttpStatus.CREATED,
           );
         default:
+          this.logger.error(data.message, currentUser.username);
           throw new HttpException(
             'Có lỗi vui lòng thử lại sau!',
             HttpStatus.BAD_REQUEST,
