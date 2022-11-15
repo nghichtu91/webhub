@@ -15,17 +15,18 @@ export type IPaymentCallbackDTO = {
 export interface IPaymentResponse {
   trans_id?: string;
   request_id?: string;
-  amount: number;
-  value: number;
+  amount?: number;
+  value?: number;
   declared_value: number;
-  telco: 'VIETTEL';
-  serial: string;
-  code: string;
+  telco?: string;
+  serial?: string;
+  code?: string;
   status: number;
   message?: string;
+  sign?: string;
 }
 
-export class PaymentCallbackDTO implements IPaymentCallbackDTO {
+export class PaymentCallbackDTO implements IPaymentResponse {
   @IsOptional()
   @ApiProperty()
   status: StatusPayment;
@@ -53,4 +54,20 @@ export class PaymentCallbackDTO implements IPaymentCallbackDTO {
   @ApiProperty()
   @IsOptional()
   telco?: string;
+
+  @IsOptional()
+  @ApiProperty()
+  trans_id?: string;
+
+  @IsOptional()
+  @ApiProperty()
+  value: number;
+
+  @IsOptional()
+  @ApiProperty()
+  declared_value: number;
+
+  @IsOptional()
+  @ApiProperty()
+  sign?: string;
 }

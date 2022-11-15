@@ -102,7 +102,7 @@ export class UserService {
    * @returns
    */
   addMoney(userName: string, money: number) {
-    this.loger.log('addMoney');
+    this.loger.log(`[addMoney] cộng vào tài khoản ${userName} ${money} xu!`);
     const adding = this.userRepository.update(
       {
         userName: userName,

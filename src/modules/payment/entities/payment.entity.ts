@@ -45,7 +45,7 @@ export class PaymentEntity
   transaction?: string;
   @Column({ name: 'transaction_id', type: 'varchar' })
   transactionId?: string;
-  @Column({ name: 'transaction_code', type: 'varchar' })
+  @Column({ name: 'transaction_code', type: 'char' })
   transactionCode?: string;
 
   @Column({ type: 'nvarchar', name: 'content' })

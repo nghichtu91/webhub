@@ -52,14 +52,43 @@ export class PaymentController {
     console.log('23');
   }
 
-  @Post('callbackvvvv')
+  @Post('callback-mobicard')
   @ApiOperation({
     summary: 'callback thẻ nạp',
   })
   @ApiBody({ type: PaymentCallbackDTO })
-  cardCallback(@Body() callBody: PaymentCallbackDTO) {
-    console.log(callBody);
+  async cardCallback(@Body() body: PaymentCallbackDTO) {
+    const { status, trans_id, value, message } = body;
+    const paylog = await this.paymentService.getUserNameByTransId(trans_id);
+    if (!paylog) {
+      this.logger.error(`[cardCallback] không tìm thấy ${trans_id}`, '');
+      throw new HttpException(`Không tìm thấy mã giao dịch!`, 400);
+    }
+    this.paymentService.updateStatus(trans_id, status, message);
+    this.logger.log(
+      `[cardCallbacki] Đổi trạng thái payment ${trans_id} từ ${paylog.status} ----> ${status}`,
+    );
+    switch (status) {
+      case PaymentStatus.FAILEDAMOUNT:
+      case PaymentStatus.SUCCEEDED:
+        if (PaymentStatus.SUCCEEDED === body.status) {
+          this.logger.log(
+            `[cardCallback] Tài khoản ${paylog.userName} nạp thẻ thành công, mệnh giá ${body.value}.`,
+          );
+        }
+        if (PaymentStatus.FAILEDAMOUNT === body.status) {
+          this.logger.log(
+            `[cardCallback] Tài khoản ${paylog.userName} nạp thẻ thành công, nhưng sai mệnh giá. Giá trị thật là ${body.value}, giá khai báo ${body.declared_value}.`,
+          );
+        }
+        const coin = value / 10;
+        this.userService.addMoney(paylog.userName, coin);
+        break;
+      default:
+        throw new HttpException(`Không tìm thấy mã giao dịch!`, 400);
+    }
   }
+
   //#region payment
   /**
    * @description api nạp thẻ và ghi thẻ vào đợi kiểm tra
@@ -70,7 +99,7 @@ export class PaymentController {
    */
   @Post('gateway/:gateway')
   @JwtAuth()
-  @ApiOperation({ description: 'Nạp thẻ', summary: 'Nạp thẻ' })
+  @ApiOperation({ summary: 'Nạp thẻ' })
   @ApiBody({ type: CreatePaymentDTO })
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -111,9 +140,9 @@ export class PaymentController {
       const newPaymentData: CreatePaymentDTO = {
         ...body,
         cardValue: 0,
-        userName: currentUser?.username || '',
-        transactionId: data.trans_id,
-        transactionCode: request_id,
+        userName: username,
+        transactionId: request_id,
+        transactionCode: data.trans_id,
         gateway: gateway,
         comment: data.message,
         status: data.status,
@@ -135,7 +164,7 @@ export class PaymentController {
         case PaymentStatus.PENDING:
           this.paymentService.create(newPaymentData);
           throw new HttpException(
-            'Thể được thêm vào hệ thống, đang đợi kiểm tra!',
+            'Thẻ được thêm vào hệ thống, đang đợi kiểm tra!',
             HttpStatus.ACCEPTED,
           );
         // card sai mệnh giá, card đúng
@@ -146,11 +175,20 @@ export class PaymentController {
           newPaymentData.cardValue = data.value;
           this.paymentService.create(newPaymentData);
           this.userService.addMoney(currentUser.username, coin);
-          this.logger.log(`Tài khoản ${username} nạp thẻ thành công mệt giá.`);
+          if (PaymentStatus.SUCCEEDED === data.status) {
+            this.logger.log(
+              `[checkout] Tài khoản ${username} nạp thẻ thành công, mệnh giá ${data.value}.`,
+            );
+          }
+          if (PaymentStatus.FAILEDAMOUNT === data.status) {
+            this.logger.log(
+              `[checkout] Tài khoản ${username} nạp thẻ thành công, nhưng sai mệnh giá. Giá trị thật là ${data.value}, giá khai báo ${data.declared_value}.`,
+            );
+          }
           throw new HttpException(
             PaymentStatus.SUCCEEDED === data.status
-              ? 'Nạp thẻ thành công, chúc bạn chơi game vui vẻ!!'
-              : 'Thể được thêm vào hệ thống, nhưng sai mệnh giá.',
+              ? 'Nạp thẻ thành công, chúc bạn chơi game vui vẻ!'
+              : 'Thẻ được thêm vào hệ thống, nhưng sai mệnh giá.',
             HttpStatus.CREATED,
           );
         default:
