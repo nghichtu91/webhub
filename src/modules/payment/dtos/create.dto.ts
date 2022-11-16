@@ -1,38 +1,63 @@
 import { IPaymentModel } from './payment.model';
-import {
-  IsOptional,
-  IsString,
-  IsNotEmpty,
-  MinLength,
-  MaxLength,
-  Matches,
-  IsNumber,
-} from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsNumber, IsOptional } from 'class-validator';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { CardTypes } from '@config';
 
 export type ICreatePaymentDTO = Pick<
   IPaymentModel,
-  'cardType' | 'cardSeri' | 'cardValue' | 'comment' | 'cardPin'
+  | 'cardType'
+  | 'cardSeri'
+  | 'cardValue'
+  | 'comment'
+  | 'cardPin'
+  | 'transactionId'
+  | 'transaction'
+  | 'transactionCode'
+  | 'userName'
+  | 'gateway'
+  | 'status'
+  | 'coin'
 >;
 
 export class CreatePaymentDTO implements ICreatePaymentDTO {
-  // @IsNumber()
-  // @ApiProperty()
-  // coin: number;
-
+  @IsOptional()
   @ApiProperty({ enum: CardTypes })
   cardType?: CardTypes;
 
-  @IsString()
+  @IsOptional()
   @ApiProperty()
   cardPin?: string;
 
-  @IsString()
+  @IsOptional()
   @ApiProperty()
   cardSeri?: string;
 
+  @IsOptional()
   @IsNumber()
   @ApiProperty()
   cardValue?: number;
+
+  @ApiHideProperty()
+  transactionId?: string;
+
+  @ApiHideProperty()
+  transaction?: string;
+
+  @ApiHideProperty()
+  transactionCode?: string;
+
+  @ApiHideProperty()
+  userName: string;
+
+  @ApiHideProperty()
+  gateway?: string;
+
+  @ApiHideProperty()
+  comment?: string;
+
+  @ApiHideProperty()
+  status?: number;
+
+  @ApiHideProperty()
+  coin?: number;
 }

@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { UserEntity } from '../entities';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, UpdateResult } from 'typeorm';
@@ -8,6 +8,7 @@ import { createHash } from 'node:crypto';
 
 @Injectable()
 export class UserService {
+  private loger = new Logger(UserService.name);
   constructor(
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
@@ -94,13 +95,20 @@ export class UserService {
     return updatePassword;
   }
 
+  /**
+   *
+   * @param {string} userName
+   * @param  {number} money
+   * @returns
+   */
   addMoney(userName: string, money: number) {
+    this.loger.log(`[addMoney] cộng vào tài khoản ${userName} ${money} xu!`);
     const adding = this.userRepository.update(
       {
         userName: userName,
       },
       {
-        point: () => 'point' + money,
+        point1: () => `nExtPoint1 + ${money}`,
       },
     );
     return adding;

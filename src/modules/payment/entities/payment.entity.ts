@@ -13,7 +13,7 @@ import { IPaymentModel } from '../dtos';
 import { IBaseModel } from '@shared';
 import { CardTypes } from '@config';
 
-@Entity({ name: 'Account_info' })
+@Entity({ name: 'payment_card_log' })
 export class PaymentEntity
   extends BaseEntity
   implements IBaseModel<IPaymentModel>
@@ -45,7 +45,7 @@ export class PaymentEntity
   transaction?: string;
   @Column({ name: 'transaction_id', type: 'varchar' })
   transactionId?: string;
-  @Column({ name: 'transaction_code', type: 'varchar' })
+  @Column({ name: 'transaction_code', type: 'char' })
   transactionCode?: string;
 
   @Column({ type: 'nvarchar', name: 'content' })
