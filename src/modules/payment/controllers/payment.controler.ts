@@ -1,11 +1,11 @@
-import { createHash } from 'node:crypto';
 import {
-  CardTypes,
   Commands,
   Gateways,
   PARTNER_ID,
   PARTNER_KEY,
   PaymentStatus,
+  CardPriceList,
+  Cardbonus,
 } from '@config';
 import {
   Injectable,
@@ -25,7 +25,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { JwtAuth, ReqUser, User } from '@shared';
+import { JwtAuth, ReqUser, User, CreateMD5 } from '@shared';
 import { PaymentCallbackDTO } from '../dtos/callback.dto';
 import { CreatePaymentDTO } from '../dtos/create.dto';
 import { PaymentService } from '../services';
@@ -42,6 +42,19 @@ export class PaymentController {
     private readonly paymentService: PaymentService,
     private readonly userService: UserService,
   ) {}
+  /**
+   * @description tính số xu được cộng vào tài khoản.
+   * @param price
+   * @returns
+   */
+  getCoin(price: string | number) {
+    this.logger.log(
+      `[Xu nhận được] ${CardPriceList[price]} khuyến mãi thêm ${
+        Cardbonus * CardPriceList[price]
+      }`,
+    );
+    return CardPriceList[price] + Cardbonus * CardPriceList[price];
+  }
 
   @Get()
   @JwtAuth()
@@ -51,44 +64,58 @@ export class PaymentController {
   listHistory() {
     console.log('23');
   }
-
   @Post('callback-mobicard')
   @ApiOperation({
     summary: 'callback thẻ nạp',
   })
   @ApiBody({ type: PaymentCallbackDTO })
   async cardCallback(@Body() body: PaymentCallbackDTO) {
-    const { status, trans_id, value, message } = body;
+    const { status, trans_id, value, message, sign, code, serial } = body;
+    const signStr = CreateMD5(`${PARTNER_KEY}${code}${serial}`);
+    if (sign !== signStr) {
+      this.logger.error(
+        `[cardCallback] chữ ký sai ${sign} # ${signStr} ${PARTNER_KEY}${code}${serial}`,
+      );
+      throw new HttpException(
+        `Không tìm thấy mã giao dịch!`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     const paylog = await this.paymentService.getUserNameByTransId(trans_id);
     if (!paylog) {
       this.logger.error(`[cardCallback] không tìm thấy ${trans_id}`, '');
-      throw new HttpException(`Không tìm thấy mã giao dịch!`, 400);
+      throw new HttpException(
+        `Không tìm thấy mã giao dịch!`,
+        HttpStatus.BAD_REQUEST,
+      );
     }
     this.paymentService.updateStatus(trans_id, status, message);
     this.logger.log(
-      `[cardCallbacki] Đổi trạng thái payment ${trans_id} từ ${paylog.status} ----> ${status}`,
+      `[cardCallback][${trans_id}] Đổi trạng thái từ ${paylog.status} ----> ${status}`,
     );
     switch (status) {
+      // card sai mệnh giá
       case PaymentStatus.FAILEDAMOUNT:
+        this.logger.log(
+          `[cardCallback][${trans_id}] Tài khoản ${paylog.userName} nạp thẻ nhưng sai mệnh giá. Giá trị thật là ${body.value}, giá khai báo ${body.declared_value}.`,
+        );
+        throw new HttpException(`Thẻ sai mệnh giá`, HttpStatus.BAD_REQUEST);
+      // card đúng
       case PaymentStatus.SUCCEEDED:
-        if (PaymentStatus.SUCCEEDED === body.status) {
-          this.logger.log(
-            `[cardCallback] Tài khoản ${paylog.userName} nạp thẻ thành công, mệnh giá ${body.value}.`,
-          );
-        }
-        if (PaymentStatus.FAILEDAMOUNT === body.status) {
-          this.logger.log(
-            `[cardCallback] Tài khoản ${paylog.userName} nạp thẻ thành công, nhưng sai mệnh giá. Giá trị thật là ${body.value}, giá khai báo ${body.declared_value}.`,
-          );
-        }
-        const coin = value / 10;
+        const coin = this.getCoin(value);
+        this.logger.log(
+          `[cardCallback][${trans_id}] Tài khoản ${paylog.userName} nạp thẻ thành công, mệnh giá ${body.value} nhận được ${coin}.`,
+        );
         this.userService.addMoney(paylog.userName, coin);
         break;
       default:
-        throw new HttpException(`Không tìm thấy mã giao dịch!`, 400);
+        this.logger.log(`[cardCallback][${trans_id}] Thẻ lỗi.`);
+        throw new HttpException(
+          `Không tìm thấy mã giao dịch!`,
+          HttpStatus.BAD_REQUEST,
+        );
     }
   }
-
   //#region payment
   /**
    * @description api nạp thẻ và ghi thẻ vào đợi kiểm tra
@@ -117,12 +144,17 @@ export class PaymentController {
         400,
       );
     }
+
+    if (!Object.keys(CardPriceList).includes(body.cardValue.toString())) {
+      throw new HttpException('Cổng nạp không hỗ trợ mệnh giá này!', 400);
+    }
+
     const { username } = currentUser;
     if (Gateways.MOBI_CARD === gateway) {
       const { cardPin, cardSeri, cardType, cardValue } = body;
       const request_id = `${username}${cardSeri}`;
       const signStr = `${PARTNER_KEY}${cardPin}${Commands.CHARGING}${PARTNER_ID}${request_id}${cardSeri}${cardType}`;
-      const sign = createHash('md5').update(signStr).digest('hex');
+      const sign = CreateMD5(signStr);
       const cardInfo = {
         telco: cardType,
         code: cardPin,
@@ -167,24 +199,22 @@ export class PaymentController {
             'Thẻ được thêm vào hệ thống, đang đợi kiểm tra!',
             HttpStatus.ACCEPTED,
           );
-        // card sai mệnh giá, card đúng
+        // card sai mệnh giá
         case PaymentStatus.FAILEDAMOUNT:
+          this.logger.log(
+            `[checkout][${data.trans_id}] Tài khoản ${username} nạp thẻ thành công, nhưng sai mệnh giá. Giá trị thật là ${data.value}, giá khai báo ${data.declared_value}.`,
+          );
+          throw new HttpException('Thẻ sai mệnh giá!', HttpStatus.BAD_REQUEST);
+        // card đúng
         case PaymentStatus.SUCCEEDED:
-          const coin = data.value / 10;
+          const coin = this.getCoin(data.value);
           newPaymentData.coin = coin;
           newPaymentData.cardValue = data.value;
           this.paymentService.create(newPaymentData);
           this.userService.addMoney(currentUser.username, coin);
-          if (PaymentStatus.SUCCEEDED === data.status) {
-            this.logger.log(
-              `[checkout] Tài khoản ${username} nạp thẻ thành công, mệnh giá ${data.value}.`,
-            );
-          }
-          if (PaymentStatus.FAILEDAMOUNT === data.status) {
-            this.logger.log(
-              `[checkout] Tài khoản ${username} nạp thẻ thành công, nhưng sai mệnh giá. Giá trị thật là ${data.value}, giá khai báo ${data.declared_value}.`,
-            );
-          }
+          this.logger.log(
+            `[checkout][${data.trans_id}] Tài khoản ${username} nạp thẻ thành công, mệnh giá ${data.value} nhận được ${coin}.`,
+          );
           throw new HttpException(
             PaymentStatus.SUCCEEDED === data.status
               ? 'Nạp thẻ thành công, chúc bạn chơi game vui vẻ!'

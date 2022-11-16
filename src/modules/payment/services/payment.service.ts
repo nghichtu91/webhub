@@ -1,4 +1,4 @@
-import { PaymentStatus } from '@config';
+import { GATEWAY_URL, PaymentStatus } from '@config';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -22,10 +22,7 @@ export class PaymentService implements IPaymentService {
   ) {}
 
   checkCardMobi(data: any): Observable<AxiosResponse<IPaymentResponse>> {
-    return this.httpService.post<IPaymentResponse>(
-      'http://naptudong.com/chargingws/v2',
-      data,
-    );
+    return this.httpService.post<IPaymentResponse>(GATEWAY_URL, data);
   }
 
   create(data: CreatePaymentDTO) {

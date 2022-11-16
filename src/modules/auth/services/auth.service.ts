@@ -4,7 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 // import { jwtRefreshTokenExpiration, jwtTokenExpiration } from '@config';
 import { CreateUserDTO } from '@modules/user/dtos';
 import { UserEntity } from '@modules/user/entities';
-import { IReqUser, ReqUser } from '@shared';
+import { IReqUser } from '@shared';
 import { UserService } from '@user/services';
 import parseDuration from 'parse-duration';
 import { LoginInputDTO } from '../dtos';
@@ -56,10 +56,10 @@ export class AuthService {
     };
     return {
       accessToken: this.jwtService.sign(payload, {
-        expiresIn: parseDuration('1000000', 'second'),
+        expiresIn: parseDuration('10000000000', 's'),
       }),
       refreshToken: this.jwtService.sign(subject, {
-        expiresIn: parseDuration('20000000', 'second'),
+        expiresIn: parseDuration('20000000000', 's'),
       }),
     }; // authToken
   }

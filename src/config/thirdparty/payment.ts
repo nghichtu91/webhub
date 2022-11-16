@@ -16,6 +16,19 @@ export enum Commands {
   'CHECK' = 'check',
 }
 
+export const CardPriceList = {
+  10000: 20,
+  20000: 40,
+  30000: 60,
+  50000: 100,
+  100000: 200,
+  200000: 400,
+  300000: 600,
+  500000: 1000,
+  1000000: 2000,
+};
+export const Cardbonus = 0.3; // tính %;
+export const GATEWAY_URL = 'http://naptudong.com/chargingws/v2';
 export const PARTNER_ID = '6471455261';
 export const PARTNER_KEY = '486b5afa44dc72a2c8cd991bc7f2a44e';
 
