@@ -41,7 +41,12 @@ export class UserService {
   async create(data: CreateUserDTO): Promise<UserEntity> {
     const user = this.userRepository.create(data);
     try {
-      return await this.userRepository.save(user);
+      const inserted = await this.userRepository.save(user);
+      // const playtime = this.playtimeRepository.create({
+      //   userName: inserted.userName,
+      // });
+      // this.playtimeRepository.save(playtime);
+      return inserted;
     } catch (err) {
       throw new HttpException(
         `${err.detail}`,

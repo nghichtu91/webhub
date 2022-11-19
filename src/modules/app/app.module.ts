@@ -5,10 +5,12 @@ import { AppService } from './services';
 import { PaymentModule } from '../payment/payment.module';
 import { UsersModule } from '../user/user.module';
 import { AuthModule } from '../auth/auth.module';
+import { UserPlayTimeModule } from '@modules/user/playtime.module';
 
 // entities
 import { UserEntity } from '../user/entities';
 import { PaymentEntity } from '../payment/entities';
+import { UserPlayTimeEntity } from '@modules/user/entities/playtime.entity';
 
 @Module({
   imports: [
@@ -27,7 +29,7 @@ import { PaymentEntity } from '../payment/entities';
       options: {
         encrypt: false,
       },
-      entities: [UserEntity, PaymentEntity],
+      entities: [UserEntity, PaymentEntity, UserPlayTimeEntity],
       database: 'account_tong',
     }),
     AuthModule,
