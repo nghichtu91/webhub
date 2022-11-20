@@ -106,16 +106,21 @@ export class UserService {
    * @param  {number} money
    * @returns
    */
-  addMoney(userName: string, money: number) {
-    this.loger.log(`[addMoney] cộng vào tài khoản ${userName} ${money} xu!`);
-    const adding = this.userRepository.update(
-      {
-        userName: userName,
-      },
-      {
-        point1: () => `nExtPoint1 + ${money}`,
-      },
-    );
-    return adding;
+  async addMoney(userName: string, money: number) {
+    try {
+      this.loger.log(`[addMoney] cộng vào tài khoản ${userName} ${money} xu!`);
+      const adding = await this.userRepository.update(
+        {
+          userName: userName,
+        },
+        {
+          point1: () => `nExtPoint1 + ${money}`,
+        },
+      );
+      return adding;
+    } catch (e) {
+      this.loger.error('[addMoney] có lỗi cộng xu.');
+      throw new Error('Có lỗi cộng xu');
+    }
   }
 }

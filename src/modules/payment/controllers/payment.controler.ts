@@ -144,11 +144,14 @@ export class PaymentController {
       this.logger.error('[AtmCallback] mã bảo mật không đúng!');
       throw new HttpException(`Mã bảo mật không đúng!`, 400);
     }
-    if (so_tien < 20000) {
+    if (so_tien < 50000) {
       this.logger.error('[AtmCallback] Số tiền nhỏ hơn 20.000 vnd!');
       throw new HttpException(`Số tiền nhỏ hơn 20.000 vnd!`, 400);
     }
-
+    const user = await this.userService.findByUserName(id_khach);
+    if (!user[0]) {
+      throw new HttpException(`Không tìm thấy tài khoản ${id_khach}`, 400);
+    }
     const coin = this.getCoinForAtm(so_tien);
     const newPaymentData: CreatePaymentDTO = {
       cardValue: so_tien,
@@ -160,12 +163,18 @@ export class PaymentController {
       status: 1,
       coin: coin,
     };
-
     this.paymentService.create(newPaymentData);
-    this.userService.addMoney(id_khach, coin);
-    this.logger.log(
-      `[AtmCallback] tài khoản ${id_khach} nạp ${so_tien} vnd, nhận được ${coin} xu.`,
-    );
+    try {
+      await this.userService.addMoney(id_khach, coin);
+      this.logger.log(
+        `[AtmCallback] tài khoản ${id_khach} nạp ${so_tien} vnd, nhận được ${coin} xu.`,
+      );
+    } catch (e) {
+      console.log(e);
+      this.logger.error(
+        `[AtmCallback] tài khoản ${id_khach} có lỗi trong quá trình cộng xu, số xu chưa cộng được ${coin}`,
+      );
+    }
     return true;
   }
 
