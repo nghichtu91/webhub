@@ -6,6 +6,8 @@ import {
   PaymentStatus,
   CardPriceList,
   Cardbonus,
+  Atmkey,
+  AtmProportion,
 } from '@config';
 import {
   Injectable,
@@ -31,6 +33,7 @@ import { CreatePaymentDTO } from '../dtos/create.dto';
 import { PaymentService } from '../services';
 import { firstValueFrom } from 'rxjs';
 import { UserService } from '@modules/user/services';
+import { AtmCallbackDTO } from '../dtos';
 
 @Injectable()
 @Controller('payments')
@@ -53,7 +56,21 @@ export class PaymentController {
         Cardbonus * CardPriceList[price]
       }`,
     );
-    return CardPriceList[price] + Cardbonus * CardPriceList[price];
+    return Math.floor(CardPriceList[price] + Cardbonus * CardPriceList[price]);
+  }
+
+  getCoinForAtm(price: number) {
+    let bonus = 1;
+    if (price < 1100000) {
+      bonus = 1.1;
+    }
+    if (price >= 1100000 && price < 2000000) {
+      bonus = 1.15;
+    }
+    if (price >= 2000000 && price <= 10000000) {
+      bonus = 1.2;
+    }
+    return Math.floor((price / AtmProportion) * bonus);
   }
 
   @Get()
@@ -116,6 +133,42 @@ export class PaymentController {
         );
     }
   }
+
+  @Post('callback-atm')
+  @ApiOperation({
+    summary: 'callback atm',
+  })
+  async atmCallback(@Body() body: AtmCallbackDTO) {
+    const { so_tien, ten_bank, trans_id, id_khach } = body;
+    if (body.ma_baoMat !== Atmkey) {
+      this.logger.error('[AtmCallback] mã bảo mật không đúng!');
+      throw new HttpException(`Mã bảo mật không đúng!`, 400);
+    }
+    if (so_tien < 20000) {
+      this.logger.error('[AtmCallback] Số tiền nhỏ hơn 20.000 vnd!');
+      throw new HttpException(`Số tiền nhỏ hơn 20.000 vnd!`, 400);
+    }
+
+    const coin = this.getCoinForAtm(so_tien);
+    const newPaymentData: CreatePaymentDTO = {
+      cardValue: so_tien,
+      userName: id_khach,
+      transactionId: trans_id,
+      transactionCode: trans_id,
+      gateway: 'atm',
+      comment: `${ten_bank}`,
+      status: 1,
+      coin: coin,
+    };
+
+    this.paymentService.create(newPaymentData);
+    this.userService.addMoney(id_khach, coin);
+    this.logger.log(
+      `[AtmCallback] tài khoản ${id_khach} nạp ${so_tien} vnd, nhận được ${coin} xu.`,
+    );
+    return true;
+  }
+
   //#region payment
   /**
    * @description api nạp thẻ và ghi thẻ vào đợi kiểm tra

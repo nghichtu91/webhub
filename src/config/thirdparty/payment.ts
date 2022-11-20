@@ -44,3 +44,6 @@ export enum PaymentStatus {
   FAILED = 3,
   MAINTENANCE = 4,
 }
+
+export const Atmkey = 'giahuyz_vlhoiucvn';
+export const AtmProportion = 500;

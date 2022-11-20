@@ -9,6 +9,7 @@ import {
 } from 'class-validator';
 import { IsUserAlreadyExist } from '../validators/IsUserAlreadyExist';
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform, TransformFnParams } from 'class-transformer';
 
 export type ICreateUserDTO = Omit<IUserModel, 'createAt' | 'updateAt'>;
 
@@ -29,6 +30,7 @@ export class CreateUserDTO implements ICreateUserDTO {
   @Matches(/^[a-z0-9_-]{3,16}$/, {
     message: 'Tài khoản chỉ dùng số và ký tự.',
   })
+  @Transform(({ value }: TransformFnParams) => value?.trim())
   userName: string;
 
   @IsNotEmpty()
@@ -36,6 +38,7 @@ export class CreateUserDTO implements ICreateUserDTO {
   @MinLength(8)
   @MaxLength(32)
   @ApiProperty({ description: 'Mật khẩu cấp 2' })
+  @Transform(({ value }: TransformFnParams) => value?.trim())
   passWordSecond: string;
 
   @IsNotEmpty()
@@ -43,14 +46,17 @@ export class CreateUserDTO implements ICreateUserDTO {
   @MinLength(8)
   @MaxLength(32)
   @ApiProperty({ description: 'Mật khẩu vào game' })
+  @Transform(({ value }: TransformFnParams) => value?.trim())
   passWord: string;
 
   @IsOptional()
   @ApiProperty({ required: false })
+  @Transform(({ value }: TransformFnParams) => value?.trim())
   email?: string;
 
   @IsOptional()
   @ApiProperty()
+  @Transform(({ value }: TransformFnParams) => value?.trim())
   phone?: string;
 
   @IsOptional()
