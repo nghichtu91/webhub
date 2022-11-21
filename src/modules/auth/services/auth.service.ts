@@ -47,7 +47,7 @@ export class AuthService {
   }
 
   getAuthToken(user: Partial<UserEntity>) {
-    const subject = { id: user.id };
+    const subject = { id: user.id, username: user.userName };
     const payload = {
       id: user.id,
       username: user.userName,

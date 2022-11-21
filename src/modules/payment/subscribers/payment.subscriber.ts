@@ -27,9 +27,11 @@ export class PaymentSubscriber
 
   afterInsert(event: InsertEvent<PaymentEntity>): void {
     const entity = event.entity;
-    this.logger.log(
-      `[${event.entity.gateway}] Tài khoản ${entity.userName} nạp ${entity.cardValue} vnd, nhận được ${entity.coin} xu!`,
-    );
+    if (entity.status === 1) {
+      this.logger.log(
+        `[${event.entity.gateway}] Tài khoản ${entity.userName} nạp ${entity.cardValue} vnd, nhận được ${entity.coin} xu!`,
+      );
+    }
     this.logger.log(`AFTER PAYMENT INSERTED ${JSON.stringify(event.entity)}`);
   }
 }

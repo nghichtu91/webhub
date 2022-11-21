@@ -45,9 +45,9 @@ export class JwtAuthController {
 
   @JwtRefreshAuth()
   @Post('refresh')
+  @ApiOperation({ summary: 'lấy lại token mới' })
   @ApiBody({ type: JwtRefreshTokenDTO })
   refresh(@User() user: ReqUser) {
-    console.log(user);
     return this.authService.jwtRefresh(user);
   }
   @Post('register')
