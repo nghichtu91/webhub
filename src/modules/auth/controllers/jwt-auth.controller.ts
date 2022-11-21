@@ -18,9 +18,9 @@ import {
   ApiBody,
 } from '@nestjs/swagger';
 import { CreateUserDTO } from '@modules/user/dtos';
-import { LoginInputDTO } from '../dtos';
+import { JwtRefreshTokenDTO, LoginInputDTO } from '../dtos';
 import { AuthService } from '../services';
-import { LocalAuth } from '@shared';
+import { JwtRefreshAuth, LocalAuth, ReqUser, User } from '@shared';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -43,12 +43,13 @@ export class JwtAuthController {
     return this.authService.jwtLogin(data);
   }
 
-  @ApiBearerAuth()
+  @JwtRefreshAuth()
   @Post('refresh')
-  refresh() {
-    return {};
+  @ApiBody({ type: JwtRefreshTokenDTO })
+  refresh(@User() user: ReqUser) {
+    console.log(user);
+    return this.authService.jwtRefresh(user);
   }
-
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Tạo tài khoản' })
