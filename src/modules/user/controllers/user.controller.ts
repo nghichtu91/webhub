@@ -86,6 +86,13 @@ export class UserController {
           path: '/user/info',
           children: [
             {
+              code: 'user-info',
+              label: {
+                en_US: 'Thông tin tài khoản',
+              },
+              path: '/user/info',
+            },
+            {
               code: 'user-change-password',
               label: {
                 zh_CN: 'Nạp thẻ',
