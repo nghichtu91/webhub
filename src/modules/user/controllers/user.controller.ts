@@ -7,6 +7,8 @@ import {
   HttpStatus,
   Body,
   HttpException,
+  Res,
+  Logger,
 } from '@nestjs/common';
 import { UserService } from '../services';
 import { JwtAuth, User, ReqUser } from '@shared';
@@ -20,20 +22,35 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import {
-  UpdateUserDTO,
-  ChangePassWordDTO,
-  IUserModel,
-  UserModel,
-} from '../dtos';
+import { UpdateUserDTO, IUserModel, UserModel } from '../dtos';
+import { Response } from 'express';
 
 @Controller('user')
 @ApiTags('User')
 export class UserController {
+  private readonly logger = new Logger(UserController.name);
   constructor(private readonly userService: UserService) {}
 
+  // @JwtAuth()
+  // @Get(':id')
+  // @ApiOperation({ summary: 'Lấy thông tin tài khoản' })
+  // @ApiOkResponse({
+  //   description: 'Lấy thành công thông tin tài khoản.',
+  //   type: UserModel,
+  // })
+  // @ApiForbiddenResponse({
+  //   description: 'Không có quyền truy cập.',
+  // })
+  // @ApiNotFoundResponse({
+  //   description: 'Không tìm thấy tài khoản này.',
+  // })
+  // async getUserById(@Param('id') userId: string): Promise<IUserModel> {
+  //   const user = await this.userService.getUser(userId);
+  //   return user;
+  // }
+
   @JwtAuth()
-  @Get(':id')
+  @Get('me')
   @ApiOperation({ summary: 'Lấy thông tin tài khoản' })
   @ApiOkResponse({
     description: 'Lấy thành công thông tin tài khoản.',
@@ -45,13 +62,209 @@ export class UserController {
   @ApiNotFoundResponse({
     description: 'Không tìm thấy tài khoản này.',
   })
-  async getUserById(@Param('id') userId: string): Promise<IUserModel> {
-    const user = await this.userService.getUser(userId);
+  async getUserById(
+    // @Param('id') userId: string,
+    @User() currentUser: ReqUser,
+  ): Promise<IUserModel> {
+    const user = await this.userService.getUser(currentUser.username);
     return user;
   }
 
+  @Get('menu')
+  userMenu() {
+    return {
+      status: true,
+      message: '',
+      result: [
+        {
+          code: 'user',
+          label: {
+            zh_CN: '组件',
+            en_US: 'Thông tin tài khoản',
+          },
+          icon: 'account',
+          path: '/user/info',
+          children: [
+            {
+              code: 'user-change-password',
+              label: {
+                zh_CN: 'Nạp thẻ',
+                en_US: 'Đổi mật khẩu game',
+              },
+              path: '/user/change-password',
+            },
+            {
+              code: 'user-change-phone',
+              label: {
+                zh_CN: 'Nạp thẻ',
+                en_US: 'Đổi số điện thoại',
+              },
+              path: '/user/change-phone',
+            },
+            {
+              code: 'user-change-sec-password',
+              label: {
+                zh_CN: 'Nạp thẻ',
+                en_US: 'Đổi mật khẩu cấp 2',
+              },
+              path: '/user/change-sec-password',
+            },
+            {
+              code: 'user-change-secret-questions',
+              label: {
+                zh_CN: 'Nạp thẻ',
+                en_US: 'Đổi câu hỏi bí mật',
+              },
+              path: '/user/change-secret-questions',
+            },
+          ],
+        },
+        {
+          code: 'payment',
+          label: {
+            zh_CN: '组件',
+            en_US: 'Nạp thẻ',
+          },
+          icon: 'payment',
+          path: '/payment',
+          children: [
+            {
+              code: 'payment',
+              label: {
+                zh_CN: 'Nạp thẻ',
+                en_US: 'Nạp thẻ',
+              },
+              path: '/payment',
+            },
+            {
+              code: 'payment-histories',
+              label: {
+                zh_CN: 'Lịch sử nạp',
+                en_US: 'Lịch sử nạp',
+              },
+              path: '/payment/histories',
+            },
+          ],
+        },
+      ],
+    };
+  }
+  @Get('notice')
+  notice() {
+    return {
+      status: true,
+      message: '成功',
+      result: [
+        {
+          id: '000000001',
+          avatar:
+            'https://gw.alipayobjects.com/zos/rmsportal/ThXAXghbEsBCCSDihZxY.png',
+          title: '你收到了 14 份新周报',
+          datetime: '2017-08-09',
+          type: 'notification',
+        },
+        {
+          id: '000000002',
+          avatar:
+            'https://gw.alipayobjects.com/zos/rmsportal/OKJXDXrmkNshAMvwtvhu.png',
+          title: '你推荐的 曲妮妮 已通过第三轮面试',
+          datetime: '2017-08-08',
+          type: 'notification',
+        },
+        {
+          id: '000000003',
+          avatar:
+            'https://gw.alipayobjects.com/zos/rmsportal/kISTdvpyTAhtGxpovNWd.png',
+          title: '这种模板可以区分多种通知类型',
+          datetime: '2017-08-07',
+          read: true,
+          type: 'notification',
+        },
+        {
+          id: '000000004',
+          avatar:
+            'https://gw.alipayobjects.com/zos/rmsportal/GvqBnKhFgObvnSGkDsje.png',
+          title: '左侧图标用于区分不同的类型',
+          datetime: '2017-08-07',
+          type: 'notification',
+        },
+        {
+          id: '000000005',
+          avatar:
+            'https://gw.alipayobjects.com/zos/rmsportal/ThXAXghbEsBCCSDihZxY.png',
+          title: '内容不要超过两行字，超出时自动截断',
+          datetime: '2017-08-07',
+          type: 'notification',
+        },
+        {
+          id: '000000006',
+          avatar:
+            'https://gw.alipayobjects.com/zos/rmsportal/fcHMVNCjPOsbUGdEduuv.jpeg',
+          title: '曲丽丽 评论了你',
+          description: '描述信息描述信息描述信息',
+          datetime: '2017-08-07',
+          type: 'message',
+          clickClose: true,
+        },
+        {
+          id: '000000007',
+          avatar:
+            'https://gw.alipayobjects.com/zos/rmsportal/fcHMVNCjPOsbUGdEduuv.jpeg',
+          title: '朱偏右 回复了你',
+          description: '这种模板用于提醒谁与你发生了互动，左侧放『谁』的头像',
+          datetime: '2017-08-07',
+          type: 'message',
+          clickClose: true,
+        },
+        {
+          id: '000000008',
+          avatar:
+            'https://gw.alipayobjects.com/zos/rmsportal/fcHMVNCjPOsbUGdEduuv.jpeg',
+          title: '标题',
+          description: '这种模板用于提醒谁与你发生了互动，左侧放『谁』的头像',
+          datetime: '2017-08-07',
+          type: 'message',
+          clickClose: true,
+        },
+        {
+          id: '000000009',
+          title: '任务名称',
+          description: '任务需要在 2017-01-12 20:00 前启动',
+          extra: '未开始',
+          status: 'todo',
+          type: 'event',
+        },
+        {
+          id: '000000010',
+          title: '第三方紧急代码变更',
+          description:
+            '冠霖提交于 2017-01-06，需在 2017-01-07 前完成代码变更任务',
+          extra: '马上到期',
+          status: 'urgent',
+          type: 'event',
+        },
+        {
+          id: '000000011',
+          title: '信息安全考试',
+          description: '指派竹尔于 2017-01-09 前完成更新并发布',
+          extra: '已耗时 8 天',
+          status: 'doing',
+          type: 'event',
+        },
+        {
+          id: '000000012',
+          title: 'ABCD 版本发布',
+          description:
+            '冠霖提交于 2017-01-06，需在 2017-01-07 前完成代码变更任务',
+          extra: '进行中',
+          status: 'processing',
+          type: 'event',
+        },
+      ],
+    };
+  }
   @JwtAuth()
-  @Patch(':id')
+  @Patch(':id/:action')
   @ApiOperation({ summary: 'Cập nhật thông tin' })
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiBadRequestResponse({
@@ -61,39 +274,100 @@ export class UserController {
     description: 'Chưa xác thực',
   })
   @ApiOkResponse({ description: 'Cập nhật thành công.' })
-  @ApiParam({ name: 'id' })
+  @ApiParam({ name: 'id', description: 'sử dụng tài khoản' })
+  @ApiParam({ name: 'action', description: 'Hành động cần thực hiện' })
   async updateUser(
     @Param('id') username: string,
+    @Param('action') action: string,
     @Body() data: UpdateUserDTO,
     @User() currentUser: ReqUser,
+    @Res() res: Response,
   ) {
     // kiểm tra tài khoản cần cập nhật
     if (username !== currentUser.username) {
-      throw new HttpException(``, HttpStatus.UNAUTHORIZED);
+      throw new HttpException(``, HttpStatus.NOT_MODIFIED);
     }
-    await this.userService.update(username, data);
-    return {
-      messages: `Cập nhật thành công!`,
-    };
+
+    const findingUser = await this.userService.findByUserName(username);
+    if (findingUser && findingUser.length === 0) {
+      throw new HttpException(
+        `Không tìm thấy tài khoản ${username}`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    let updateParams: UpdateUserDTO = {};
+    if (findingUser[0].beforeChangeCheckInfo(data)) {
+      throw new HttpException(
+        `Thông tin kiểm tra không đúng, vui lòng kiểm tra lại!`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    switch (action) {
+      case 'changepassword':
+        updateParams = {
+          passWord: data.passWord,
+        };
+        break;
+      case 'changephone':
+        updateParams = {
+          phone: data.newPhone,
+        };
+        break;
+      case 'changesecpassword':
+        updateParams = {
+          passWordSecond: data.newPassWordSecond,
+        };
+      case 'changesecretquestion':
+        updateParams = {
+          question: data.newSecretQuestion,
+          answer: data.newAnswer,
+        };
+        break;
+      default:
+        this.logger.warn(`${action} không hỗ trợ`);
+        throw new HttpException(``, HttpStatus.NOT_MODIFIED);
+    }
+
+    try {
+      await this.userService.update(username, updateParams);
+      this.logger.log(
+        `[${action}] tài khoản ${username} đổi thông tin thành công!`,
+      );
+      res.status(HttpStatus.OK).json({
+        message: 'Cập nhật thông tin thành công!',
+      });
+    } catch (e) {
+      const error = e as unknown as Error;
+      this.logger.error(error.message);
+      this.logger.error(
+        `[${action}] tài khoản ${username} đổi thông tin không thành công!`,
+      );
+      throw new HttpException(
+        `Có lỗi trong quá trình cập nhật, vui lòng thử lại sau.`,
+        HttpStatus.SERVICE_UNAVAILABLE,
+      );
+    }
   }
 
-  @JwtAuth()
-  @Patch(':id/change-password')
-  @ApiOperation({ summary: 'Thay đổi mật khẩu' })
-  @HttpCode(HttpStatus.ACCEPTED)
-  @ApiBadRequestResponse({
-    description: 'Có lỗi trong quá trình cập nhật!',
-  })
-  @ApiUnauthorizedResponse({
-    description: 'Chưa đăng nhập',
-  })
-  async changePassword(
-    @Param('id') userId: string,
-    @Body() data: ChangePassWordDTO,
-  ) {
-    await this.userService.changePassword(userId, data);
-    return {
-      messages: `xin chào nhật thành ${userId}`,
-    };
-  }
+  // @JwtAuth()
+  // @Patch(':id/change-password')
+  // @ApiOperation({ summary: 'Thay đổi mật khẩu' })
+  // @HttpCode(HttpStatus.ACCEPTED)
+  // @ApiBadRequestResponse({
+  //   description: 'Có lỗi trong quá trình cập nhật!',
+  // })
+  // @ApiUnauthorizedResponse({
+  //   description: 'Chưa đăng nhập',
+  // })
+  // async changePassword(
+  //   @Param('id') userId: string,
+  //   @Body() data: ChangePassWordDTO,
+  // ) {
+  //   await this.userService.changePassword(userId, data);
+  //   return {
+  //     messages: `xin chào nhật thành ${userId}`,
+  //   };
+  // }
 }

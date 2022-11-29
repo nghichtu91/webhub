@@ -33,7 +33,7 @@ async function bootstrap() {
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
   configSession(app);
 
-  await app.listen(3000);
+  app.listen(process.env.PORT || 3000);
 }
 
 bootstrap();

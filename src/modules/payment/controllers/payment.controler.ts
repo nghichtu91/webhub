@@ -19,6 +19,7 @@ import {
   HttpStatus,
   Get,
   Logger,
+  Query,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -34,6 +35,14 @@ import { PaymentService } from '../services';
 import { firstValueFrom } from 'rxjs';
 import { UserService } from '@modules/user/services';
 import { AtmCallbackDTO } from '../dtos';
+import { PaymentEntity } from '../entities';
+
+interface IPageReponse<T> {
+  pageNum: number;
+  pageSize: number;
+  total: number;
+  data: T[];
+}
 
 @Injectable()
 @Controller('payments')
@@ -73,14 +82,30 @@ export class PaymentController {
     return Math.floor((price / AtmProportion) * bonus);
   }
 
-  @Get()
+  @Get(':username')
   @JwtAuth()
   @ApiOperation({
     summary: 'Danh sách lịch sử nạp',
   })
-  listHistory() {
-    console.log('23');
+  async listHistory(
+    @Param('username') username: string,
+    @Query('paged') paged: number,
+  ) {
+    const total = await this.paymentService.getTotalByUserName(username);
+    const payments = await this.paymentService.getPaymentsByUsername(
+      username,
+      paged,
+    );
+
+    const vv: IPageReponse<PaymentEntity> = {
+      pageNum: paged,
+      pageSize: 12,
+      total: total,
+      data: payments,
+    };
+    return vv;
   }
+
   @Post('callback-mobicard')
   @ApiOperation({
     summary: 'callback thẻ nạp',
@@ -233,7 +258,7 @@ export class PaymentController {
       //add field miss
       const newPaymentData: CreatePaymentDTO = {
         ...body,
-        cardValue: 0,
+        cardValue: cardValue,
         userName: username,
         transactionId: request_id,
         transactionCode: data.trans_id,
@@ -256,6 +281,7 @@ export class PaymentController {
           );
         // card đang chờ
         case PaymentStatus.PENDING:
+          newPaymentData.comment = '';
           this.paymentService.create(newPaymentData);
           throw new HttpException(
             'Thẻ được thêm vào hệ thống, đang đợi kiểm tra!',

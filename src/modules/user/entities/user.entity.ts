@@ -3,14 +3,13 @@ import {
   BaseEntity,
   Column,
   CreateDateColumn,
-  UpdateDateColumn,
   BeforeInsert,
   BeforeUpdate,
   PrimaryColumn,
   Entity,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { IUserModel } from '../dtos';
+import { IUpdateUserDTO, IUserModel } from '../dtos';
 import { IBaseModel } from '@shared';
 
 @Entity({ name: 'Account_info' })
@@ -48,9 +47,17 @@ export class UserEntity extends BaseEntity implements IBaseModel<IUserModel> {
   })
   passWord: string;
 
+  @BeforeInsert()
+  @BeforeUpdate()
+  hashPassword(): void {
+    if (this.passWord) {
+      this.passwordNoEncrypt = this.passWord;
+      this.passWord = createHash('md5').update(this.passWord).digest('hex');
+    }
+  }
+
   @Column({
     name: 'cSecPassWord',
-    length: 32,
     type: 'varchar',
   })
   passWordSecond: string;
@@ -62,80 +69,73 @@ export class UserEntity extends BaseEntity implements IBaseModel<IUserModel> {
   })
   createdAt?: Date;
 
-  @BeforeInsert()
-  createTime(): void {
-    this.createdAt = new Date();
-  }
+  @Column({
+    name: 'cPasswordNoEncrypt',
+    length: 50,
+    type: 'varchar',
+  })
+  passwordNoEncrypt?: string;
 
-  @BeforeUpdate()
-  updateTime(): void {
-    this.updatedAt = new Date();
-  }
-
-  @UpdateDateColumn({ name: 'cUpdateInfo', nullable: true, type: 'datetime' })
-  updatedAt?: Date;
-
-  @BeforeInsert()
-  @BeforeUpdate()
-  hashPassword(): void {
-    if (this.passWord) {
-      this.passWord = createHash('md5').update(this.passWord).digest('hex');
-    }
-    if (this.passWordSecond) {
-      this.passWordSecond = createHash('md5')
-        .update(this.passWordSecond)
-        .digest('hex');
-    }
-  }
+  @Column({
+    name: 'cSecPasswordNoEncrypt',
+    length: 50,
+    type: 'varchar',
+  })
+  secPasswordNoEncrypt?: string;
 
   // point
   @Column({
     name: 'nExtPoint',
     type: 'smallint',
   })
-  point = 1;
+  point: number;
 
   @Column({
     type: 'smallint',
     name: 'nExtPoint1',
     default: 0,
   })
-  point1 = 0;
+  point1: number;
 
   @Column({
     type: 'smallint',
     name: 'nExtPoint2',
     default: 0,
+    select: false,
   })
-  point2 = 0;
+  point2: number;
 
   @Column({
     type: 'smallint',
     name: 'nExtPoint3',
     default: 0,
+    select: false,
   })
-  point3 = 0;
+  point3: number;
 
   @Column({
     type: 'smallint',
     name: 'nExtPoint4',
     default: 0,
+    select: false,
   })
-  point4 = 0;
+  point4: number;
 
   @Column({
     type: 'smallint',
     name: 'nExtPoint5',
     default: 0,
+    select: false,
   })
-  point5 = 0;
+  point5: number;
 
   @Column({
     type: 'smallint',
     name: 'nExtPoint6',
     default: 0,
+    select: false,
   })
-  point6 = 0;
+  point6: number;
 
   @Column({
     type: 'smallint',
@@ -143,14 +143,8 @@ export class UserEntity extends BaseEntity implements IBaseModel<IUserModel> {
     default: 0,
     select: false,
   })
-  point7 = 0;
+  point7: number;
 
-  comparePassword(attempt: string): boolean {
-    return (
-      createHash('md5').update(attempt).digest('hex').toString() ===
-      this.passWord
-    );
-  }
   @Column({
     type: 'varchar',
     name: 'cQuestion',
@@ -163,4 +157,64 @@ export class UserEntity extends BaseEntity implements IBaseModel<IUserModel> {
     default: 0,
   })
   answer?: string;
+
+  @Column({
+    type: 'nchar',
+    name: 'cUpdateInfo',
+  })
+  updateInfo?: string;
+
+  @BeforeInsert()
+  createTime(): void {
+    this.createdAt = new Date();
+  }
+
+  @BeforeUpdate()
+  beforeUpdateInfo(): void {
+    if (this.passWordSecond && this.question) {
+      this.updateInfo = '1';
+    }
+  }
+
+  @BeforeUpdate()
+  hashPasswordSecond(): void {
+    if (this.passWordSecond) {
+      this.secPasswordNoEncrypt = this.passWordSecond;
+      this.passWordSecond = createHash('md5')
+        .update(this.passWordSecond)
+        .digest('hex');
+    }
+  }
+
+  comparePassword(attempt: string): boolean {
+    return (
+      createHash('md5').update(attempt).digest('hex').toString() ===
+      this.passWord
+    );
+  }
+
+  @BeforeInsert()
+  defaultValues(): void {
+    this.point = 0;
+    this.point1 = 0;
+    this.point2 = 0;
+    this.point3 = 0;
+    this.point4 = 0;
+    this.point5 = 0;
+    this.point6 = 0;
+    this.point7 = 0;
+  }
+
+  /**
+   * @param {IUpdateUserDTO} params
+   * @returns {boolean}
+   */
+  beforeChangeCheckInfo(params: IUpdateUserDTO): boolean {
+    return (
+      this.phone !== params.phone ||
+      this.question !== params.question ||
+      this.answer !== params.answer ||
+      this.secPasswordNoEncrypt !== params.passWordSecond
+    );
+  }
 }

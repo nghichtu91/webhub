@@ -5,7 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { AxiosResponse } from 'axios';
 import { Observable } from 'rxjs';
 import { Repository } from 'typeorm';
-import { IPaymentResponse } from '../dtos';
+import { IPaymentResponse, PaymentModel } from '../dtos';
 import { CreatePaymentDTO } from '../dtos/create.dto';
 import { PaymentEntity } from '../entities';
 
@@ -50,5 +50,34 @@ export class PaymentService implements IPaymentService {
         comment: message,
       },
     );
+  }
+
+  async getTotalByUserName(userName: string) {
+    return await this.paymentRepo.count({
+      where: {
+        userName: userName,
+      },
+    });
+  }
+
+  async getPaymentsByUsername(
+    userName: string,
+    paged = 1,
+    pageSize = 12,
+  ): Promise<PaymentEntity[]> {
+    const sql = `SELECT coin as coin, id, status, cardpin as cardPin, gateway_api as gateway, cardtype as cardType, content as comment, cardvalue as cardValue, cardseri as cardSeri FROM (
+      SELECT ROW_NUMBER() OVER(ORDER BY id) AS Numero,
+             * FROM payment_card_log WHERE username =@2
+        ) AS TBL
+WHERE Numero BETWEEN ((@0 - 1) * @1 + 1) AND (@0 * @1) 
+ORDER BY id DESC`;
+
+    return this.paymentRepo
+      .query(sql, [paged, pageSize, userName])
+      .then((s: PaymentModel[]) =>
+        s.map((c) => {
+          return this.paymentRepo.create(c);
+        }),
+      );
   }
 }

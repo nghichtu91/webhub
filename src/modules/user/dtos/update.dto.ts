@@ -1,10 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform, TransformFnParams } from 'class-transformer';
 import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 import { IUserModel } from './user.model';
 export type IUpdateUserDTO = Pick<
   IUserModel,
-  'phone' | 'point' | 'answer' | 'email' | 'point2' | 'question'
+  | 'phone'
+  | 'point'
+  | 'answer'
+  | 'email'
+  | 'point2'
+  | 'question'
+  | 'passWordSecond'
+  | 'passWord'
 >;
 
 export class UpdateUserDTO implements IUpdateUserDTO {
@@ -14,6 +22,13 @@ export class UpdateUserDTO implements IUpdateUserDTO {
     required: false,
   })
   phone?: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({
+    required: false,
+  })
+  passWordSecond?: string;
 
   @IsOptional()
   @IsNumber()
@@ -49,5 +64,34 @@ export class UpdateUserDTO implements IUpdateUserDTO {
     required: false,
     description: 'Câu trả lời.',
   })
+  @Transform(({ value }: TransformFnParams) => value?.trim())
   answer?: string;
+
+  @IsOptional()
+  @ApiProperty()
+  newPassword?: string;
+
+  @IsOptional()
+  @ApiProperty()
+  passWord?: string;
+
+  @IsOptional()
+  @ApiProperty({ description: 'Số điện cần thay đổi' })
+  @Transform(({ value }: TransformFnParams) => value?.trim())
+  newPhone?: string;
+
+  @IsOptional()
+  @ApiProperty({ description: 'Mật khẩu cấp 2 cần thay đổi' })
+  @Transform(({ value }: TransformFnParams) => value?.trim())
+  newPassWordSecond?: string;
+
+  @IsOptional()
+  @ApiProperty()
+  @Transform(({ value }: TransformFnParams) => value?.trim())
+  newSecretQuestion?: string;
+
+  @IsOptional()
+  @ApiProperty()
+  @Transform(({ value }: TransformFnParams) => value?.trim())
+  newAnswer?: string;
 }

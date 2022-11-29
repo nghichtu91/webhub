@@ -1,13 +1,12 @@
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 export interface IUserModel {
   id?: string;
-  userName: string;
-  passWord: string;
-  passWordSecond: string;
+  userName?: string;
+  passWord?: string;
+  passWordSecond?: string;
   email?: string;
   phone?: string;
   createdAt?: Date;
-  updatedAt?: Date;
   //point
   point?: number;
   point1?: number;
@@ -19,17 +18,19 @@ export interface IUserModel {
   point7?: number;
   question?: string;
   answer?: string;
+  updateInfo?: string;
+  passwordNoEncrypt?: string;
+  secPasswordNoEncrypt?: string;
 }
 
 export class UserModel implements IUserModel {
   id?: string;
-  userName: string;
-  passWord: string;
-  passWordSecond: string;
+  userName?: string;
+  passWord?: string;
+  passWordSecond?: string;
   email?: string;
   phone?: string;
   createdAt?: Date;
-  updatedAt?: Date;
   point?: number;
   point1?: number;
   point2?: number;
@@ -44,4 +45,8 @@ export class UserModel implements IUserModel {
 
   @ApiHideProperty()
   answer?: string;
+
+  updateInfo?: string;
+  passwordNoEncrypt?: string;
+  secPasswordNoEncrypt?: string;
 }

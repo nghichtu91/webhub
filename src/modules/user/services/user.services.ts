@@ -56,10 +56,12 @@ export class UserService {
   }
 
   async getUser(userName: string) {
-    const users = await this.userRepository.query(
-      `select * from Account_Info where cAccName = @0`,
-      [userName],
-    );
+    const users = await this.userRepository.find({
+      select: ['point1', 'answer', 'question', 'id', 'userName', 'updateInfo'],
+      where: {
+        userName: userName,
+      },
+    });
     return users[0];
   }
   /**
@@ -69,11 +71,13 @@ export class UserService {
    * @returns
    */
   update(userName: string, data: UpdateUserDTO) {
+    const userDto = this.userRepository.create(data);
+    console.log('userDto', userDto);
     const ff = this.userRepository.update(
       {
-        userName: userName,
+        userName,
       },
-      data,
+      userDto,
     );
     return ff;
   }
