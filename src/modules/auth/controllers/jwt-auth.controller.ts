@@ -6,6 +6,8 @@ import {
   HttpStatus,
   ClassSerializerInterceptor,
   UseInterceptors,
+  Get,
+  Res,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -14,13 +16,13 @@ import {
   ApiOperation,
   ApiCreatedResponse,
   ApiBadRequestResponse,
-  ApiBearerAuth,
   ApiBody,
 } from '@nestjs/swagger';
 import { CreateUserDTO } from '@modules/user/dtos';
 import { JwtRefreshTokenDTO, LoginInputDTO } from '../dtos';
 import { AuthService } from '../services';
 import { JwtRefreshAuth, LocalAuth, ReqUser, User } from '@shared';
+import { Response } from 'express';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -66,5 +68,10 @@ export class JwtAuthController {
   @ApiBody({ type: CreateUserDTO })
   register(@Body() data: CreateUserDTO) {
     return this.authService.jwtRegister(data);
+  }
+
+  @Get('logout')
+  logout(@Res() res: Response) {
+    return res.status(HttpStatus.OK).send();
   }
 }

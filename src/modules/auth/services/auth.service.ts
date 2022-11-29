@@ -61,6 +61,6 @@ export class AuthService {
       refreshToken: this.jwtService.sign(subject, {
         expiresIn: parseDuration('20000000000', 's'),
       }),
-    }; // authToken
+    };
   }
 }
