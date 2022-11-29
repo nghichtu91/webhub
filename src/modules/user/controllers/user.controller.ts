@@ -297,7 +297,10 @@ export class UserController {
     }
 
     let updateParams: UpdateUserDTO = {};
-    if (findingUser[0].beforeChangeCheckInfo(data)) {
+    if (
+      findingUser[0].beforeChangeCheckInfo(data) &&
+      action !== 'firstupdate'
+    ) {
       throw new HttpException(
         `Thông tin kiểm tra không đúng, vui lòng kiểm tra lại!`,
         HttpStatus.BAD_REQUEST,
