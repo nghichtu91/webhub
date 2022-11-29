@@ -325,6 +325,13 @@ export class UserController {
           answer: data.newAnswer,
         };
         break;
+      case 'firstupdate':
+        updateParams = {
+          question: data.question,
+          answer: data.answer,
+          passWordSecond: data.passWordSecond,
+        };
+        break;
       default:
         this.logger.warn(`${action} không hỗ trợ`);
         throw new HttpException(``, HttpStatus.NOT_MODIFIED);
