@@ -8,6 +8,7 @@ import {
   UseInterceptors,
   Get,
   Res,
+  HttpException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -21,7 +22,7 @@ import {
 import { CreateUserDTO } from '@modules/user/dtos';
 import { JwtRefreshTokenDTO, LoginInputDTO } from '../dtos';
 import { AuthService } from '../services';
-import { JwtRefreshAuth, LocalAuth, ReqUser, User } from '@shared';
+import { JwtRefreshAuth, ReqUser, User } from '@shared';
 import { Response } from 'express';
 
 @Controller('auth')
@@ -40,9 +41,16 @@ export class JwtAuthController {
   @ApiUnauthorizedResponse({
     description: 'Đăng nhập không thành công!',
   })
-  @LocalAuth()
-  login(@Body() data: LoginInputDTO) {
-    return this.authService.jwtLogin(data);
+  // @LocalAuth()
+  async login(@Body() data: LoginInputDTO) {
+    try {
+      return await this.authService.jwtLogin(data);
+    } catch (e: unknown) {
+      throw new HttpException(
+        `Tài khoản hoặc mật khẩu không đúng.`,
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
   }
 
   @JwtRefreshAuth()

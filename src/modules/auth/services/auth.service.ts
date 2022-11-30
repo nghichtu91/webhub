@@ -31,7 +31,8 @@ export class AuthService {
     const user = await this.validateUser(username, password);
     if (!user) {
       throw new UnauthorizedException();
-    } else return this.getAuthToken(user);
+    }
+    return this.getAuthToken(user);
   }
 
   async jwtRefresh(data: IReqUser) {
@@ -39,7 +40,8 @@ export class AuthService {
     const user = users[0];
     if (!user) {
       throw new UnauthorizedException();
-    } else return this.getAuthToken(user);
+    }
+    return this.getAuthToken(user);
   }
 
   async jwtRegister(data: CreateUserDTO) {

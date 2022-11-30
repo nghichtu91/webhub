@@ -12,11 +12,15 @@ import { PassportModule } from '@nestjs/passport';
 import { UserEntity } from '../user/entities';
 import { PaymentEntity } from '../payment/entities';
 import { UserPlayTimeEntity } from '@modules/user/entities/playtime.entity';
-
+import { ThrottlerModule } from '@nestjs/throttler';
 // import * as TypeOrmConfig from '@config/databases/ormconfig';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot({
+      ttl: 60,
+      limit: 10,
+    }),
     TypeOrmModule.forRoot({
       type: 'mssql',
       host: '103.92.24.185',
