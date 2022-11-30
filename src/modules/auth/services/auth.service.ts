@@ -8,6 +8,7 @@ import { IReqUser } from '@shared';
 import { UserService } from '@user/services';
 import parseDuration from 'parse-duration';
 import { LoginInputDTO } from '../dtos';
+import { AppRoles } from '@config';
 
 @Injectable()
 export class AuthService {
@@ -48,12 +49,14 @@ export class AuthService {
 
   getAuthToken(user: Partial<UserEntity>) {
     const subject = { id: user.id, username: user.userName };
+
     const payload = {
       id: user.id,
       username: user.userName,
       email: user.email,
-      roles: [],
+      roles: [AppRoles.GUEST],
     };
+
     return {
       accessToken: this.jwtService.sign(payload, {
         expiresIn: parseDuration('10000000000', 's'),

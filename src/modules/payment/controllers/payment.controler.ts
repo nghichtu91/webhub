@@ -8,6 +8,9 @@ import {
   Cardbonus,
   Atmkey,
   AtmProportion,
+  roles,
+  AppRoles,
+  AppResources,
 } from '@config';
 import {
   Injectable,
@@ -83,7 +86,11 @@ export class PaymentController {
   }
 
   @Get(':username')
-  @JwtAuth()
+  @JwtAuth({
+    resource: AppResources.USER,
+    action: 'read',
+    possession: 'any',
+  })
   @ApiOperation({
     summary: 'Danh sách lịch sử nạp',
   })

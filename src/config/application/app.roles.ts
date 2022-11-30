@@ -8,6 +8,7 @@ export enum AppRoles {
 
 export enum AppResources {
   USER = 'USER',
+  PAYMENT = 'PAYMENT',
 }
 
 export const roles: RolesBuilder = new RolesBuilder();
