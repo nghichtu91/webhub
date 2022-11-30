@@ -6,13 +6,14 @@ import { JwtAuthController } from './controllers';
 import { AuthService } from './services';
 import { JwtRefreshStrategy, JwtAuthStrategy, LocalStrategy } from '@shared';
 import { PassportModule } from '@nestjs/passport';
+import { jwtSecretKey } from '@config';
 
 @Module({
   imports: [
     UsersModule,
     PassportModule,
     JwtModule.register({
-      secret: 'jx1porttal',
+      secret: jwtSecretKey,
       signOptions: {
         algorithm: 'HS256',
       },

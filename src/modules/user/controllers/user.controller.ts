@@ -11,7 +11,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { UserService } from '../services';
-import { JwtAuth, User, ReqUser } from '@shared';
+import { JwtAuth, User, ReqUser, AppPermissionBuilder } from '@shared';
 import {
   ApiBadRequestResponse,
   ApiForbiddenResponse,
@@ -24,12 +24,19 @@ import {
 } from '@nestjs/swagger';
 import { UpdateUserDTO, IUserModel, UserModel } from '../dtos';
 import { Response } from 'express';
+import { AppResources } from '@config';
+import { InjectRolesBuilder, RolesBuilder } from 'nest-access-control';
+import { HttpStatusCode } from 'axios';
 
 @Controller('user')
 @ApiTags('User')
 export class UserController {
   private readonly logger = new Logger(UserController.name);
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    @InjectRolesBuilder()
+    private readonly rolesBuilder: RolesBuilder,
+  ) {}
 
   // @JwtAuth()
   // @Get(':id')
@@ -62,12 +69,20 @@ export class UserController {
   @ApiNotFoundResponse({
     description: 'Không tìm thấy tài khoản này.',
   })
-  async getUserById(
-    // @Param('id') userId: string,
-    @User() currentUser: ReqUser,
-  ): Promise<IUserModel> {
+  async getUserById(@User() currentUser: ReqUser): Promise<IUserModel> {
+    const permission = new AppPermissionBuilder()
+      .setRolesBuilder(this.rolesBuilder)
+      .setRequestUser(currentUser)
+      .setAction('read')
+      .setResourceName(AppResources.USER)
+      .setCreatorId(currentUser.id)
+      .build()
+      .grant();
+    if (!permission.granted) {
+      throw new HttpException(``, HttpStatusCode.Forbidden);
+    }
     const user = await this.userService.getUser(currentUser.username);
-    return user;
+    return permission.filter(user);
   }
 
   @Get('menu')

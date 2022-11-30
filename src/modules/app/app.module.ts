@@ -1,16 +1,19 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AccessControlModule } from 'nest-access-control';
 import { AppController } from './controllers';
 import { AppService } from './services';
 import { PaymentModule } from '../payment/payment.module';
 import { UsersModule } from '../user/user.module';
 import { AuthModule } from '../auth/auth.module';
-import { UserPlayTimeModule } from '@modules/user/playtime.module';
-
+import { roles } from '@config';
+import { PassportModule } from '@nestjs/passport';
 // entities
 import { UserEntity } from '../user/entities';
 import { PaymentEntity } from '../payment/entities';
 import { UserPlayTimeEntity } from '@modules/user/entities/playtime.entity';
+
+// import * as TypeOrmConfig from '@config/databases/ormconfig';
 
 @Module({
   imports: [
@@ -32,6 +35,8 @@ import { UserPlayTimeEntity } from '@modules/user/entities/playtime.entity';
       entities: [UserEntity, PaymentEntity, UserPlayTimeEntity],
       database: 'account_tong',
     }),
+    PassportModule,
+    AccessControlModule.forRoles(roles),
     AuthModule,
     UsersModule,
     PaymentModule,
