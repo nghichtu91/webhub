@@ -59,6 +59,7 @@
     "morgan": "^1.10.0",
     "mssql": "5.0.5",
     "nest-access-control": "^2.2.0",
+    "nestjs-telegram": "^1.2.0",
     "parse-duration": "^1.0.2",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.0",

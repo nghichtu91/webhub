@@ -13,10 +13,11 @@ import { UserEntity } from '../user/entities';
 import { PaymentEntity } from '../payment/entities';
 import { UserPlayTimeEntity } from '@modules/user/entities/playtime.entity';
 import { ThrottlerModule } from '@nestjs/throttler';
-// import * as TypeOrmConfig from '@config/databases/ormconfig';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
     ThrottlerModule.forRoot({
       ttl: 60,
       limit: 10,
@@ -47,5 +48,6 @@ import { ThrottlerModule } from '@nestjs/throttler';
   ],
   controllers: [AppController],
   providers: [AppService],
+  exports: [],
 })
 export class AppModule {}

@@ -24,7 +24,7 @@ import { JwtRefreshTokenDTO, LoginInputDTO } from '../dtos';
 import { AuthService } from '../services';
 import { JwtRefreshAuth, ReqUser, User } from '@shared';
 import { Response } from 'express';
-import { ForgotPassworDTO, IForgotPassWordDTO } from '../dtos/forgotpass.dto';
+import { ForgotPassworDTO } from '../dtos/forgotpass.dto';
 
 @Controller('auth')
 @ApiTags('Auth')

@@ -6,9 +6,18 @@ import { PaymentController } from './controllers';
 import { PaymentEntity } from './entities';
 import { PaymentService } from './services';
 import { PaymentSubscriber } from './subscribers';
+import { TelegramModule } from 'nestjs-telegram';
+import { BOT_KEY } from '@config';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([PaymentEntity]), HttpModule, UsersModule],
+  imports: [
+    TelegramModule.forRoot({
+      botKey: BOT_KEY,
+    }),
+    TypeOrmModule.forFeature([PaymentEntity]),
+    HttpModule,
+    UsersModule,
+  ],
   providers: [PaymentService, PaymentSubscriber],
   controllers: [PaymentController],
   exports: [PaymentService],
