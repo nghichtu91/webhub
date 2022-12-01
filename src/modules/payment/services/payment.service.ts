@@ -7,6 +7,7 @@ import { Observable } from 'rxjs';
 import { Repository } from 'typeorm';
 import { IPaymentResponse, PaymentModel } from '../dtos';
 import { CreatePaymentDTO } from '../dtos/create.dto';
+import { IPaymentUpdateDTO } from '../dtos/update.dto';
 import { PaymentEntity } from '../entities';
 
 interface IPaymentService {
@@ -25,7 +26,7 @@ export class PaymentService implements IPaymentService {
     return this.httpService.post<IPaymentResponse>(GATEWAY_URL, data);
   }
 
-  create(data: CreatePaymentDTO) {
+  instert(data: CreatePaymentDTO) {
     const creating = this.paymentRepo.create(data);
     return this.paymentRepo.save(creating);
   }
@@ -52,6 +53,15 @@ export class PaymentService implements IPaymentService {
     );
   }
 
+  update(trans_id: string, data: IPaymentUpdateDTO) {
+    const createUpdate = this.paymentRepo.create(data);
+    return this.paymentRepo.update(
+      {
+        transactionCode: trans_id,
+      },
+      createUpdate,
+    );
+  }
   async getTotalByUserName(userName: string) {
     return await this.paymentRepo.count({
       where: {
@@ -66,7 +76,7 @@ export class PaymentService implements IPaymentService {
     pageSize = 12,
   ): Promise<PaymentEntity[]> {
     const sql = `SELECT coin as coin, id, status, cardpin as cardPin, gateway_api as gateway, cardtype as cardType, content as comment, cardvalue as cardValue, cardseri as cardSeri FROM (
-      SELECT ROW_NUMBER() OVER(ORDER BY id) AS Numero,
+      SELECT ROW_NUMBER() OVER(ORDER BY id DESC) AS Numero,
              * FROM payment_card_log WHERE username =@2
         ) AS TBL
 WHERE Numero BETWEEN ((@0 - 1) * @1 + 1) AND (@0 * @1) 

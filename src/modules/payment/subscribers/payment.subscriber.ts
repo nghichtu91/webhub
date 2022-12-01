@@ -5,6 +5,7 @@ import {
   EntitySubscriberInterface,
   EventSubscriber,
   InsertEvent,
+  UpdateEvent,
 } from 'typeorm';
 
 import { PaymentEntity } from '../entities/payment.entity';
@@ -33,11 +34,27 @@ export class PaymentSubscriber
   afterInsert(event: InsertEvent<PaymentEntity>): void {
     const entity = event.entity;
     if (entity.status === 1) {
-      const logMessage = `[${event.entity.gateway}] Tài khoản ${entity.userName} nạp ${entity.cardValue} vnd, nhận được ${entity.coin} xu!`;
-      this.telegramSevice.sendMessage({
-        text: logMessage,
-        chat_id: BOT_CHAT_ID,
-      });
+      const logMessage = `[${event.entity.gateway}] Tài khoản ${entity.userName} nạp ${entity.cardValue}vnd, nhận được ${entity.coin} xu!`;
+      this.telegramSevice
+        .sendMessage({
+          text: logMessage,
+          chat_id: BOT_CHAT_ID,
+        })
+        .subscribe();
+      this.logger.log(logMessage);
+    }
+  }
+
+  afterUpdate(event: UpdateEvent<PaymentEntity>): void {
+    const entity = event.entity;
+    if (entity.status === 1) {
+      const logMessage = `[${event.entity.gateway}] Tài khoản ${entity.userName} nạp ${entity.cardValue}vnd, nhận được ${entity.coin} xu!`;
+      this.telegramSevice
+        .sendMessage({
+          text: logMessage,
+          chat_id: BOT_CHAT_ID,
+        })
+        .toPromise();
       this.logger.log(logMessage);
     }
   }

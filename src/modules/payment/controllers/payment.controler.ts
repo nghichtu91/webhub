@@ -8,9 +8,8 @@ import {
   Cardbonus,
   Atmkey,
   AtmProportion,
-  roles,
-  AppRoles,
   AppResources,
+  BOT_CHAT_ID,
 } from '@config';
 import {
   Injectable,
@@ -39,6 +38,7 @@ import { firstValueFrom } from 'rxjs';
 import { UserService } from '@modules/user/services';
 import { AtmCallbackDTO } from '../dtos';
 import { PaymentEntity } from '../entities';
+import { TelegramService } from 'nestjs-telegram';
 
 interface IPageReponse<T> {
   pageNum: number;
@@ -56,6 +56,7 @@ export class PaymentController {
   constructor(
     private readonly paymentService: PaymentService,
     private readonly userService: UserService,
+    private readonly telegramSevice: TelegramService,
   ) {}
   /**
    * @description tính số xu được cộng vào tài khoản.
@@ -119,7 +120,16 @@ export class PaymentController {
   })
   @ApiBody({ type: PaymentCallbackDTO })
   async cardCallback(@Body() body: PaymentCallbackDTO) {
-    const { status, trans_id, value, message, sign, code, serial } = body;
+    const {
+      status,
+      trans_id,
+      value,
+      message,
+      sign,
+      code,
+      serial,
+      declared_value,
+    } = body;
     const signStr = CreateMD5(`${PARTNER_KEY}${code}${serial}`);
     if (sign !== signStr) {
       this.logger.error(
@@ -138,13 +148,19 @@ export class PaymentController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    this.paymentService.updateStatus(trans_id, status, message);
+
     this.logger.log(
       `[cardCallback][${trans_id}] Đổi trạng thái từ ${paylog.status} ----> ${status}`,
     );
+
     switch (status) {
       // card sai mệnh giá
       case PaymentStatus.FAILEDAMOUNT:
+        this.paymentService.updateStatus(
+          trans_id,
+          status,
+          `Khai báo ${declared_value} giá trị thẻ là ${value}`,
+        );
         this.logger.log(
           `[cardCallback][${trans_id}] Tài khoản ${paylog.userName} nạp thẻ nhưng sai mệnh giá. Giá trị thật là ${body.value}, giá khai báo ${body.declared_value}.`,
         );
@@ -155,9 +171,26 @@ export class PaymentController {
         this.logger.log(
           `[cardCallback][${trans_id}] Tài khoản ${paylog.userName} nạp thẻ thành công, mệnh giá ${body.value} nhận được ${coin}.`,
         );
-        this.userService.addMoney(paylog.userName, coin);
+        this.paymentService.update(trans_id, {
+          coin: coin,
+          status: status,
+          userName: paylog.userName,
+          gateway: paylog.gateway,
+          cardValue: paylog.cardValue,
+        });
+        try {
+          await this.userService.addMoney(paylog.userName, coin);
+        } catch (e) {
+          this.telegramSevice
+            .sendMessage({
+              text: `Có lỗi cộng xu cho tài khoản ${paylog.userName} với số xu là: ${coin}`,
+              chat_id: BOT_CHAT_ID,
+            })
+            .toPromise();
+        }
         break;
       default:
+        this.paymentService.updateStatus(trans_id, status, message);
         this.logger.log(`[cardCallback][${trans_id}] Thẻ lỗi.`);
         throw new HttpException(
           `Không tìm thấy mã giao dịch!`,
@@ -195,14 +228,19 @@ export class PaymentController {
       status: 1,
       coin: coin,
     };
-    this.paymentService.create(newPaymentData);
+    this.paymentService.instert(newPaymentData);
     try {
       await this.userService.addMoney(id_khach, coin);
       this.logger.log(
         `[AtmCallback] tài khoản ${id_khach} nạp ${so_tien} vnd, nhận được ${coin} xu.`,
       );
     } catch (e) {
-      console.log(e);
+      this.telegramSevice
+        .sendMessage({
+          text: `Có lỗi cộng xu cho tài khoản ${id_khach} với số xu là: ${coin}`,
+          chat_id: BOT_CHAT_ID,
+        })
+        .toPromise();
       this.logger.error(
         `[AtmCallback] tài khoản ${id_khach} có lỗi trong quá trình cộng xu, số xu chưa cộng được ${coin}`,
       );
@@ -289,7 +327,7 @@ export class PaymentController {
         // card đang chờ
         case PaymentStatus.PENDING:
           newPaymentData.comment = '';
-          this.paymentService.create(newPaymentData);
+          this.paymentService.instert(newPaymentData);
           throw new HttpException(
             'Thẻ được thêm vào hệ thống, đang đợi kiểm tra!',
             HttpStatus.ACCEPTED,
@@ -305,7 +343,7 @@ export class PaymentController {
           const coin = this.getCoin(data.value);
           newPaymentData.coin = coin;
           newPaymentData.cardValue = data.value;
-          this.paymentService.create(newPaymentData);
+          this.paymentService.instert(newPaymentData);
           this.userService.addMoney(currentUser.username, coin);
           this.logger.log(
             `[checkout][${data.trans_id}] Tài khoản ${username} nạp thẻ thành công, mệnh giá ${data.value} nhận được ${coin}.`,
