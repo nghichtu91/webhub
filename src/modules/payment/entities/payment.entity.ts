@@ -62,6 +62,7 @@ export class PaymentEntity
   @BeforeInsert()
   createTime(): void {
     this.createdAt = new Date();
+    this.updatedAt = new Date();
   }
 
   @BeforeUpdate()
