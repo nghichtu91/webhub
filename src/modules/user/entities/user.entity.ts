@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 import { IUpdateUserDTO, IUserModel } from '../dtos';
 import { IBaseModel } from '@shared';
+import { ForgotPassworDTO } from '@modules/auth/dtos';
 
 @Entity({ name: 'Account_info' })
 export class UserEntity extends BaseEntity implements IBaseModel<IUserModel> {
@@ -215,6 +216,14 @@ export class UserEntity extends BaseEntity implements IBaseModel<IUserModel> {
       this.question !== params.question ||
       this.answer !== params.answer ||
       this.secPasswordNoEncrypt !== params.passWordSecond
+    );
+  }
+
+  beforCheckForgotPassword(params: ForgotPassworDTO) {
+    return (
+      this.phone !== params.phone ||
+      this.question !== params.question ||
+      this.answer !== this.answer
     );
   }
 }

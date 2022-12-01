@@ -24,6 +24,7 @@ import { JwtRefreshTokenDTO, LoginInputDTO } from '../dtos';
 import { AuthService } from '../services';
 import { JwtRefreshAuth, ReqUser, User } from '@shared';
 import { Response } from 'express';
+import { ForgotPassworDTO, IForgotPassWordDTO } from '../dtos/forgotpass.dto';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -81,5 +82,22 @@ export class JwtAuthController {
   @Get('logout')
   logout(@Res() res: Response) {
     return res.status(HttpStatus.OK).send();
+  }
+
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Lấy lại mật khẩu thành công',
+  })
+  @ApiBody({ type: ForgotPassworDTO })
+  @Post('forgot')
+  async forgotPassword(@Body() body: ForgotPassworDTO) {
+    try {
+      await this.authService.forgotPassword(body);
+    } catch (e: unknown) {
+      throw new HttpException(
+        `Thông tin cung cấp không đúng.`,
+        HttpStatus.BAD_GATEWAY,
+      );
+    }
   }
 }

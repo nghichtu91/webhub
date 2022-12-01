@@ -1,17 +1,16 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-
-// import { jwtRefreshTokenExpiration, jwtTokenExpiration } from '@config';
-import { CreateUserDTO } from '@modules/user/dtos';
+import { CreateUserDTO, UpdateUserDTO } from '@modules/user/dtos';
 import { UserEntity } from '@modules/user/entities';
 import { IReqUser } from '@shared';
 import { UserService } from '@user/services';
 import parseDuration from 'parse-duration';
-import { LoginInputDTO } from '../dtos';
+import { ForgotPassworDTO, LoginInputDTO } from '../dtos';
 import { AppRoles } from '@config';
 
 @Injectable()
 export class AuthService {
+  private logger = new Logger(AuthService.name);
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
@@ -67,5 +66,28 @@ export class AuthService {
         expiresIn: parseDuration('20000000000', 's'),
       }),
     };
+  }
+
+  async forgotPassword(data: ForgotPassworDTO): Promise<boolean> {
+    try {
+      const users = await this.userService.findByUserName(data.userName);
+
+      if (users.length === 0) {
+        throw new Error('USER_NOT_FOUND');
+      }
+      const user = users[0];
+      if (user.beforCheckForgotPassword(data)) {
+        throw new Error('INFO_NOT_MATCH');
+      }
+      const update: UpdateUserDTO = { passWord: data.passWord || '123456789' };
+      await this.userService.update(data.userName, update);
+      this.logger.log(
+        `Tài khoản ${data.userName} lấy lại mật khẩu thành công!`,
+      );
+      return true;
+    } catch (e: unknown) {
+      const errors = e as Error;
+      throw new Error(errors.message);
+    }
   }
 }

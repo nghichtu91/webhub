@@ -72,7 +72,6 @@ export class UserService {
    */
   update(userName: string, data: UpdateUserDTO) {
     const userDto = this.userRepository.create(data);
-    console.log('userDto', userDto);
     const ff = this.userRepository.update(
       {
         userName,
