@@ -98,7 +98,7 @@ export class UserController {
             en_US: 'Thông tin tài khoản',
           },
           icon: 'account',
-          path: '/user/info',
+          path: '/user',
           children: [
             {
               code: 'user-info',
@@ -138,6 +138,14 @@ export class UserController {
                 en_US: 'Đổi câu hỏi bí mật',
               },
               path: '/user/change-secret-questions',
+            },
+            {
+              code: 'user-unlock-equipment',
+              label: {
+                zh_CN: 'Nạp thẻ',
+                en_US: 'Mở khoá trang bị',
+              },
+              path: '/user/unlock-equipment',
             },
           ],
         },
@@ -355,6 +363,11 @@ export class UserController {
           question: data.question,
           answer: data.answer,
           passWordSecond: data.passWordSecond,
+        };
+        break;
+      case 'unlockequipment':
+        updateParams = {
+          point: 1,
         };
         break;
       default:
