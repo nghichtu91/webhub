@@ -24,14 +24,24 @@ export interface IUserModel {
 }
 
 export class UserModel implements IUserModel {
+  @ApiProperty()
   id?: string;
+  @ApiProperty()
   userName?: string;
+
   passWord?: string;
   passWordSecond?: string;
   email?: string;
+
+  @ApiProperty()
   phone?: string;
+
   createdAt?: Date;
+
+  @ApiProperty()
   point?: number;
+
+  @ApiProperty()
   point1?: number;
   point2?: number;
   point3?: number;
@@ -43,10 +53,14 @@ export class UserModel implements IUserModel {
   @ApiProperty()
   question?: string;
 
-  @ApiHideProperty()
+  @ApiProperty()
   answer?: string;
 
+  @ApiProperty()
   updateInfo?: string;
+
+  @ApiProperty()
   passwordNoEncrypt?: string;
+  @ApiProperty()
   secPasswordNoEncrypt?: string;
 }

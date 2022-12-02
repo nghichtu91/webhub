@@ -9,6 +9,7 @@ export enum AppRoles {
 export enum AppResources {
   USER = 'USER',
   PAYMENT = 'PAYMENT',
+  ADMIN = 'ADMIN',
 }
 
 export const roles: RolesBuilder = new RolesBuilder();
@@ -24,4 +25,7 @@ roles
   .extend(AppRoles.CUSTOMER)
   .createAny(AppResources.USER)
   .updateAny(AppResources.USER)
-  .deleteAny(AppResources.USER);
+  .deleteAny(AppResources.USER)
+  .createAny(AppResources.ADMIN)
+  .updateAny(AppResources.ADMIN)
+  .deleteAny(AppResources.ADMIN);
