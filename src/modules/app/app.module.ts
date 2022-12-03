@@ -6,6 +6,7 @@ import { AppService } from './services';
 import { PaymentModule } from '../payment/payment.module';
 import { UsersModule } from '../user/user.module';
 import { AuthModule } from '../auth/auth.module';
+import { CommonModule } from '../common/common.module';
 import { roles } from '@config';
 import { PassportModule } from '@nestjs/passport';
 // entities
@@ -43,8 +44,9 @@ import { ConfigModule } from '@nestjs/config';
     PassportModule,
     AccessControlModule.forRoles(roles),
     AuthModule,
-    UsersModule,
     PaymentModule,
+    UsersModule,
+    CommonModule,
   ],
   controllers: [AppController],
   providers: [AppService],

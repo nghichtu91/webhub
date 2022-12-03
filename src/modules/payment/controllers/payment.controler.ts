@@ -10,6 +10,7 @@ import {
   AtmProportion,
   AppResources,
   BOT_CHAT_ID,
+  CardTypes,
 } from '@config';
 import {
   Injectable,
@@ -227,6 +228,7 @@ export class PaymentController {
       comment: `${ten_bank}`,
       status: 1,
       coin: coin,
+      cardType: CardTypes.ATM,
     };
     this.paymentService.instert(newPaymentData);
     try {

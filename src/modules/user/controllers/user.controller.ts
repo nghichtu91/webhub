@@ -176,9 +176,27 @@ export class UserController {
             },
           ],
         },
+        {
+          code: 'admin',
+          icon: 'account',
+          label: {
+            zh_CN: 'Admin',
+            en_US: 'Admin',
+          },
+          children: [
+            {
+              path: '/admin/users',
+              label: {
+                zh_CN: 'Admin',
+                en_US: 'Danh sách tài khoản',
+              },
+            },
+          ],
+        },
       ],
     };
   }
+
   @Get('notice')
   notice() {
     return {
@@ -395,24 +413,4 @@ export class UserController {
       );
     }
   }
-
-  // @JwtAuth()
-  // @Patch(':id/change-password')
-  // @ApiOperation({ summary: 'Thay đổi mật khẩu' })
-  // @HttpCode(HttpStatus.ACCEPTED)
-  // @ApiBadRequestResponse({
-  //   description: 'Có lỗi trong quá trình cập nhật!',
-  // })
-  // @ApiUnauthorizedResponse({
-  //   description: 'Chưa đăng nhập',
-  // })
-  // async changePassword(
-  //   @Param('id') userId: string,
-  //   @Body() data: ChangePassWordDTO,
-  // ) {
-  //   await this.userService.changePassword(userId, data);
-  //   return {
-  //     messages: `xin chào nhật thành ${userId}`,
-  //   };
-  // }
 }

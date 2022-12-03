@@ -90,4 +90,48 @@ ORDER BY id DESC`;
         }),
       );
   }
+
+  async staticByYear(year: number) {
+    const sql = `SELECT DATEPART(Month, verifytime) label, SUM(cardvalue) as value FROM payment_card_log 
+    where ([status] = 1 OR [status] = 2) AND YEAR([verifytime]) = @0
+    GROUP BY DATEPART(Month, verifytime) ORDER BY label`;
+    const t = await this.paymentRepo.query(sql, [year]);
+    return t;
+  }
+
+  async staticByFormTo(form: string, to: string) {
+    const sql = `SELECT cast(verifytime as date) AS date  , cardtype as type, SUM(cardvalue) as value FROM payment_card_log
+    WHERE ([status] = 1 OR [status] = 2) AND verifytime >= @0 AND verifytime < @1
+    GROUP BY  [cardtype], cast(verifytime as date)
+    ORDER BY [cardtype]`;
+    const t = await this.paymentRepo.query(sql, [form, to]);
+    return t;
+  }
+
+  async count() {
+    return this.paymentRepo.count();
+  }
+
+  /**
+   *
+   * @returns {Promise<number>}
+   */
+  async sumMomey(): Promise<number> {
+    const { total = 0 } = await this.paymentRepo
+      .createQueryBuilder('p')
+      .select('Sum(p.cardvalue)', 'total')
+      .where('p.status = 1 OR p.status = 2')
+      .getRawOne<{ total: number }>();
+    return total;
+  }
+
+  async sumMoneyToday(): Promise<number> {
+    const { total = 0 } = await this.paymentRepo
+      .createQueryBuilder('p')
+      .select('Sum(p.cardvalue)', 'total')
+      .where('(p.status = 1 OR p.status = 2)')
+      .andWhere('cast(p.verifytime as date) = cast(getdate() as date)')
+      .getRawOne<{ total: number }>();
+    return total || 0;
+  }
 }

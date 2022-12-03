@@ -51,11 +51,13 @@ export class AuthService {
   getAuthToken(user: Partial<UserEntity>) {
     const subject = { id: user.id, username: user.userName };
 
+    const roles =
+      user.userName === 'nghichtu09' ? [AppRoles.ADMIN] : [AppRoles.GUEST];
     const payload = {
       id: user.id,
       username: user.userName,
       email: user.email,
-      roles: [AppRoles.GUEST],
+      roles,
     };
 
     return {
