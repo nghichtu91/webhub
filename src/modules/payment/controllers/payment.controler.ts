@@ -6,10 +6,11 @@ import {
   PaymentStatus,
   CardPriceList,
   Cardbonus,
-  Atmkey,
-  AtmProportion,
+  ATM_KEY,
+  ATM_RATE,
   AppResources,
   BOT_CHAT_ID,
+  CardTypes,
 } from '@config';
 import {
   Injectable,
@@ -83,7 +84,7 @@ export class PaymentController {
     if (price >= 2000000 && price <= 10000000) {
       bonus = 1.2;
     }
-    return Math.floor((price / AtmProportion) * bonus);
+    return Math.floor((price / ATM_RATE) * bonus);
   }
 
   @Get(':username')
@@ -205,7 +206,7 @@ export class PaymentController {
   })
   async atmCallback(@Body() body: AtmCallbackDTO) {
     const { so_tien, ten_bank, trans_id, id_khach } = body;
-    if (body.ma_baoMat !== Atmkey) {
+    if (body.ma_baoMat !== ATM_KEY) {
       this.logger.error('[AtmCallback] mã bảo mật không đúng!');
       throw new HttpException(`Mã bảo mật không đúng!`, 400);
     }
@@ -227,6 +228,7 @@ export class PaymentController {
       comment: `${ten_bank}`,
       status: 1,
       coin: coin,
+      cardType: CardTypes.ATM,
     };
     this.paymentService.instert(newPaymentData);
     try {

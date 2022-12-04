@@ -12,6 +12,9 @@ import {
   databaseUsername,
 } from './mssql-config';
 
+import { UserEntity, UserPlayTimeEntity } from '@modules/user/entities';
+import { PaymentEntity } from '@modules/payment/entities';
+
 export default {
   type: databaseType,
   host: databaseHost,
@@ -19,19 +22,15 @@ export default {
   username: databaseUsername,
   password: databasePassword,
   database: databaseName,
-  autoLoadEntities: false,
+  // autoLoadEntities: false,
   synchronize: false,
   migrationsRun: false,
   logging: process.env.NODE_ENV !== 'production',
-  // migrations: [`dist/src/migrations/**/*`],
   cache: databaseEnableCache
     ? { duration: parseDuration(databaseCacheDuration) }
     : false,
-  // cli: {
-  //   migrationsDir: 'src/migrations',
-  // },
-  entities: [
-    // 'src/modules/**/entities/*.entity.ts',
-    'dist/src/modules/**/entities/*.entity.js',
-  ],
+  entities: [UserEntity, UserPlayTimeEntity, PaymentEntity],
+  options: {
+    encrypt: false,
+  },
 } as unknown as DataSourceOptions;

@@ -1,21 +1,31 @@
 import path from 'path';
 import * as dotenv from 'dotenv';
 // setup env
-
 dotenv.config({ path: path.resolve(process.cwd(), '.env'), override: true });
 
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { AppModule } from './modules/app/app.module';
-import { configSession, appGlobalConfig, devConfig } from '@app/config';
-import { ValidationPipe } from '@nestjs/common';
+import { AppModule } from '@modules/app/app.module';
+import {
+  configSession,
+  appGlobalConfig,
+  devConfig,
+  prodConfig,
+} from '@app/config';
 import { useContainer } from 'class-validator';
 import { Logger } from '@nestjs/common';
-import { PORT, LISTEN_ON } from './config';
+import { PORT, LISTEN_ON, NODE_ENV } from './config';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  devConfig(app);
+
+  if (NODE_ENV === 'development') {
+    devConfig(app);
+  } else {
+    prodConfig(app);
+  }
+
+  // devConfig(app);
   appGlobalConfig(app);
 
   // app.useStaticAssets(join(__dirname, '..', 'public'));
@@ -32,15 +42,8 @@ async function bootstrap() {
   // );
 
   // app.setViewEngine('hbs');
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      transform: true,
-    }),
-  );
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
   configSession(app);
-
   app.listen(PORT, LISTEN_ON, () => {
     Logger.log(`Nest listening on http://${LISTEN_ON}:${PORT}`, 'Bootstrap');
   });

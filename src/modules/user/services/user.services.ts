@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { UserEntity } from '../entities';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, UpdateResult } from 'typeorm';
+import { Like, Repository, UpdateResult } from 'typeorm';
 import { CreateUserDTO } from '../dtos/create.dto';
 import { ChangePassWordDTO, UpdateUserDTO } from '../dtos';
 import { createHash } from 'node:crypto';
@@ -125,5 +125,45 @@ export class UserService {
       this.loger.error('[addMoney] có lỗi cộng xu.');
       throw new Error('Có lỗi cộng xu');
     }
+  }
+
+  getCount(keyword = '') {
+    let sql = {};
+    if (keyword !== '') {
+      sql = {
+        where: { userName: Like(`%${keyword}%`) },
+      };
+    }
+    return this.userRepository.count(sql);
+  }
+
+  async getUsers(
+    paged = 1,
+    pageSize = 12,
+    keyword = '',
+  ): Promise<UserEntity[]> {
+    let sql = `SELECT * FROM (
+      SELECT ROW_NUMBER() OVER(ORDER BY iid DESC) AS Numero,
+             iid as id, cQuestion as question, cAnswer as answer, cAccName as userName, cPhone as phone, cPasswordNoEncrypt as passwordNoEncrypt, cSecPasswordNoEncrypt as secPasswordNoEncrypt, nExtPoint1 as point1, dRegDate as createdAt, cUpdateInfo as updateInfo FROM Account_Info
+        ) AS TBL
+WHERE Numero BETWEEN ((@0 - 1) * @1 + 1) AND (@0 * @1) 
+ORDER BY id DESC`;
+    if (keyword != '') {
+      sql = `SELECT * FROM (
+          SELECT ROW_NUMBER() OVER(ORDER BY iid DESC) AS Numero,
+                 iid as id, cQuestion as question, cAnswer as answer, cAccName as userName, cPhone as phone, cPasswordNoEncrypt as passwordNoEncrypt, cSecPasswordNoEncrypt as secPasswordNoEncrypt, nExtPoint1 as point1, dRegDate as createdAt, cUpdateInfo as updateInfo FROM Account_Info
+                 WHERE cAccName LIKE @2
+            ) AS TBL
+    WHERE Numero BETWEEN ((@0 - 1) * @1 + 1) AND (@0 * @1)
+    ORDER BY id DESC`;
+    }
+    const s = await this.userRepository.query(sql, [
+      paged,
+      pageSize,
+      `%${keyword}%`,
+    ]);
+    return s.map((c: any) => {
+      return this.userRepository.create(c);
+    });
   }
 }

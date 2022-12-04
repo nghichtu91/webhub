@@ -1,6 +1,6 @@
 import { UsersModule } from '@modules/user/user.module';
 import { HttpModule } from '@nestjs/axios';
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PaymentController } from './controllers';
 import { PaymentEntity } from './entities';
@@ -9,6 +9,7 @@ import { PaymentSubscriber } from './subscribers';
 import { TelegramModule } from 'nestjs-telegram';
 import { BOT_KEY } from '@config';
 
+@Global()
 @Module({
   imports: [
     TelegramModule.forRoot({
