@@ -2,7 +2,9 @@ import { RolesBuilder } from 'nest-access-control';
 export enum AppRoles {
   ADMIN = 'ADMIN',
   CUSTOMER = 'CUSTOMER',
+  USER = 'USER',
   GUEST = 'GUEST',
+  SYSTEM = 'SYSTEM',
 }
 
 export enum AppResources {
@@ -25,6 +27,9 @@ roles
   .createAny(AppResources.USER)
   .updateAny(AppResources.USER)
   .deleteAny(AppResources.USER)
+  .createAny(AppResources.PAYMENT)
+  .deleteAny(AppResources.PAYMENT)
+  .updateAny(AppResources.PAYMENT)
   .createAny(AppResources.ADMIN)
   .updateAny(AppResources.ADMIN)
   .deleteAny(AppResources.ADMIN);

@@ -24,7 +24,7 @@ import {
 } from '@nestjs/swagger';
 import { UpdateUserDTO, IUserModel, UserModel } from '../dtos';
 import { Response } from 'express';
-import { AppResources } from '@config';
+import { ADMIN_USER, AppResources, AppRoles } from '@config';
 import { InjectRolesBuilder, RolesBuilder } from 'nest-access-control';
 import { HttpStatusCode } from 'axios';
 
@@ -37,24 +37,6 @@ export class UserController {
     @InjectRolesBuilder()
     private readonly rolesBuilder: RolesBuilder,
   ) {}
-
-  // @JwtAuth()
-  // @Get(':id')
-  // @ApiOperation({ summary: 'Lấy thông tin tài khoản' })
-  // @ApiOkResponse({
-  //   description: 'Lấy thành công thông tin tài khoản.',
-  //   type: UserModel,
-  // })
-  // @ApiForbiddenResponse({
-  //   description: 'Không có quyền truy cập.',
-  // })
-  // @ApiNotFoundResponse({
-  //   description: 'Không tìm thấy tài khoản này.',
-  // })
-  // async getUserById(@Param('id') userId: string): Promise<IUserModel> {
-  //   const user = await this.userService.getUser(userId);
-  //   return user;
-  // }
 
   @JwtAuth()
   @Get('me')
@@ -81,100 +63,128 @@ export class UserController {
     if (!permission.granted) {
       throw new HttpException(``, HttpStatusCode.Forbidden);
     }
-    const user = await this.userService.getUser(currentUser.username);
-    return permission.filter(user);
+    const userEntity = await this.userService.getUser(currentUser.username);
+
+    const reponse: IUserModel = {
+      ...userEntity,
+      roles:
+        userEntity.userName === ADMIN_USER
+          ? [AppRoles.ADMIN]
+          : [AppRoles.GUEST],
+    };
+    return permission.filter(reponse);
   }
 
-  @Get('menu')
-  userMenu() {
-    return {
-      status: true,
-      message: '',
-      result: [
-        {
-          code: 'user',
-          label: {
-            zh_CN: '组件',
-            en_US: 'Thông tin tài khoản',
-          },
-          icon: 'account',
-          path: '/user',
-          children: [
-            {
-              code: 'user-info',
-              label: {
-                en_US: 'Thông tin tài khoản',
-              },
-              path: '/user/info',
-            },
-            {
-              code: 'user-change-password',
-              label: {
-                zh_CN: 'Nạp thẻ',
-                en_US: 'Đổi mật khẩu game',
-              },
-              path: '/user/change-password',
-            },
-            {
-              code: 'user-change-phone',
-              label: {
-                zh_CN: 'Nạp thẻ',
-                en_US: 'Đổi số điện thoại',
-              },
-              path: '/user/change-phone',
-            },
-            {
-              code: 'user-change-sec-password',
-              label: {
-                zh_CN: 'Nạp thẻ',
-                en_US: 'Đổi mật khẩu cấp 2',
-              },
-              path: '/user/change-sec-password',
-            },
-            {
-              code: 'user-change-secret-questions',
-              label: {
-                zh_CN: 'Nạp thẻ',
-                en_US: 'Đổi câu hỏi bí mật',
-              },
-              path: '/user/change-secret-questions',
-            },
-            {
-              code: 'user-unlock-equipment',
-              label: {
-                zh_CN: 'Nạp thẻ',
-                en_US: 'Mở khoá trang bị',
-              },
-              path: '/user/unlock-equipment',
-            },
-          ],
+  @JwtAuth()
+  @Get('menus')
+  async userMenu(@User() currentUser: ReqUser) {
+    const menus = [
+      {
+        code: 'user',
+        label: {
+          zh_CN: '组件',
+          en_US: 'Thông tin tài khoản',
         },
-        {
-          code: 'payment',
-          label: {
-            zh_CN: '组件',
-            en_US: 'Nạp thẻ',
+        icon: 'account',
+        path: '/user',
+        children: [
+          {
+            code: 'user-info',
+            label: {
+              en_US: 'Thông tin tài khoản',
+            },
+            path: '/user/info',
           },
-          icon: 'payment',
-          path: '/payment',
-          children: [
-            {
-              code: 'payment',
-              label: {
-                zh_CN: 'Nạp thẻ',
-                en_US: 'Nạp thẻ',
-              },
-              path: '/payment',
+          {
+            code: 'user-change-password',
+            label: {
+              zh_CN: 'Nạp thẻ',
+              en_US: 'Đổi mật khẩu game',
             },
-            {
-              code: 'payment-histories',
-              label: {
-                zh_CN: 'Lịch sử nạp',
-                en_US: 'Lịch sử nạp',
-              },
-              path: '/payment/histories',
+            path: '/user/change-password',
+          },
+          {
+            code: 'user-change-phone',
+            label: {
+              zh_CN: 'Nạp thẻ',
+              en_US: 'Đổi số điện thoại',
             },
-          ],
+            path: '/user/change-phone',
+          },
+          {
+            code: 'user-change-sec-password',
+            label: {
+              zh_CN: 'Nạp thẻ',
+              en_US: 'Đổi mật khẩu cấp 2',
+            },
+            path: '/user/change-sec-password',
+          },
+          {
+            code: 'user-change-secret-questions',
+            label: {
+              zh_CN: 'Nạp thẻ',
+              en_US: 'Đổi câu hỏi bí mật',
+            },
+            path: '/user/change-secret-questions',
+          },
+          {
+            code: 'user-unlock-equipment',
+            label: {
+              zh_CN: 'Nạp thẻ',
+              en_US: 'Mở khoá trang bị',
+            },
+            path: '/user/unlock-equipment',
+          },
+        ],
+      },
+      {
+        code: 'payment',
+        label: {
+          zh_CN: '组件',
+          en_US: 'Nạp thẻ',
+        },
+        icon: 'payment',
+        path: '/payment',
+        children: [
+          {
+            code: 'payment',
+            label: {
+              zh_CN: 'Nạp thẻ',
+              en_US: 'Nạp thẻ',
+            },
+            path: '/payment',
+          },
+          {
+            code: 'payment-histories',
+            label: {
+              zh_CN: 'Lịch sử nạp',
+              en_US: 'Lịch sử nạp',
+            },
+            path: '/payment/histories',
+          },
+        ],
+      },
+    ];
+    let h = [];
+    const permission = new AppPermissionBuilder()
+      .setRolesBuilder(this.rolesBuilder)
+      .setRequestUser(currentUser)
+      .setAction('read')
+      .setAction('create')
+      .setResourceName(AppResources.ADMIN)
+      .setCreatorId(currentUser.id)
+      .build()
+      .grant();
+    if (permission.granted) {
+      h = [
+        {
+          code: 'dashboard',
+          label: {
+            zh_CN: 'Dashboard',
+            en_US: 'Dashboard',
+          },
+          icon: 'dashboard',
+          path: '/dashboard',
         },
         {
           code: 'admin',
@@ -183,6 +193,7 @@ export class UserController {
             zh_CN: 'Admin',
             en_US: 'Admin',
           },
+          path: '/admin',
           children: [
             {
               path: '/admin/users',
@@ -191,9 +202,23 @@ export class UserController {
                 en_US: 'Danh sách tài khoản',
               },
             },
+            // {
+            //   path: '/admin/payments',
+            //   label: {
+            //     zh_CN: 'Admin',
+            //     en_US: 'Danh Payments',
+            //   },
+            // },
           ],
         },
-      ],
+      ].concat(h);
+    }
+    // user menus
+    h = h.concat(menus);
+    return {
+      status: true,
+      message: '',
+      result: h,
     };
   }
 
