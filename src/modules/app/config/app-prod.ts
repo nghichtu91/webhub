@@ -1,4 +1,3 @@
-import { Logger } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { createWriteStream, existsSync, mkdirSync } from 'fs';
 import morgan from 'morgan';
@@ -21,13 +20,12 @@ import {
  * @param app
  */
 export function prodConfig(app: NestExpressApplication): void {
-  const logger = new Logger('Bootstrap');
   app.use(helmet());
   app.use(compression());
-  // app.enableCors({
-  //   origin: [apiUrl, clientUrl],
-  //   credentials: true,
-  // });
+  app.enableCors({
+    origin: [apiUrl, clientUrl],
+    credentials: true,
+  });
 
   if (enableLogging) {
     const logFile = isAbsolute(logDir)

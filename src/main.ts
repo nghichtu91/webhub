@@ -18,7 +18,6 @@ import { PORT, LISTEN_ON, NODE_ENV } from './config';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-
   if (NODE_ENV === 'development') {
     devConfig(app);
   } else {

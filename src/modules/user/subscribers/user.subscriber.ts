@@ -5,7 +5,6 @@ import {
   EntitySubscriberInterface,
   EventSubscriber,
   InsertEvent,
-  UpdateEvent,
 } from 'typeorm';
 
 import { UserEntity } from '../entities/user.entity';
@@ -31,9 +30,5 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
   afterInsert(event: InsertEvent<UserEntity>): void {
     this.logger.log(`AFTER USER INSERTED ${JSON.stringify(event.entity)}`);
     this.userPlayTimeService.addEndTime(event.entity.userName);
-  }
-
-  afterUpdate(event: UpdateEvent<UserEntity>): void {
-    this.logger.log(`AFTER USER UPDATED ${JSON.stringify(event.entity)}`);
   }
 }
