@@ -42,7 +42,6 @@ export class JwtAuthController {
   @ApiUnauthorizedResponse({
     description: 'Đăng nhập không thành công!',
   })
-  // @LocalAuth()
   async login(@Body() data: LoginInputDTO) {
     try {
       return await this.authService.jwtLogin(data);
