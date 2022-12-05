@@ -94,4 +94,8 @@ export class UpdateUserDTO implements IUpdateUserDTO {
   @ApiProperty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
   newAnswer?: string;
+
+  @IsOptional()
+  @ApiProperty()
+  sms?: boolean;
 }

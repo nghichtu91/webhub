@@ -11,6 +11,9 @@ import { CommonModule } from '@modules/common/common.module';
 //#endregion
 import { roles } from '@config';
 import ormconfig from '@config/databases/ormconfig';
+import { AppController } from '@modules/app/controllers/app.controller';
+import { AppService } from '@modules/app/services';
+import { SmsModule } from '@modules/sms/sms.module';
 
 @Module({
   imports: [
@@ -24,10 +27,11 @@ import ormconfig from '@config/databases/ormconfig';
     AuthModule,
     PaymentModule,
     UsersModule,
+    SmsModule,
     CommonModule,
   ],
-  controllers: [],
-  providers: [],
-  exports: [],
+  controllers: [AppController],
+  providers: [AppService],
+  exports: [AppService],
 })
 export class AppModule {}

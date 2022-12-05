@@ -1,4 +1,4 @@
-import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 export interface IUserModel {
   id?: string;
   userName?: string;
@@ -21,6 +21,7 @@ export interface IUserModel {
   updateInfo?: string;
   passwordNoEncrypt?: string;
   secPasswordNoEncrypt?: string;
+  roles?: string[];
 }
 
 export class UserModel implements IUserModel {
@@ -61,6 +62,10 @@ export class UserModel implements IUserModel {
 
   @ApiProperty()
   passwordNoEncrypt?: string;
+
   @ApiProperty()
   secPasswordNoEncrypt?: string;
+
+  @ApiProperty()
+  roles?: string[];
 }
