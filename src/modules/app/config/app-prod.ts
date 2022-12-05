@@ -29,7 +29,7 @@ export function prodConfig(app: NestExpressApplication): void {
       'localhost',
       'vercel.app',
       'vlhoiuc.vn',
-      'id.vlhoiuc.vn',
+      'http://id.vlhoiuc.vn',
     ],
     credentials: true,
   });
