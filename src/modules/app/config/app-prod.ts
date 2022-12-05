@@ -23,7 +23,7 @@ export function prodConfig(app: NestExpressApplication): void {
   app.use(helmet());
   app.use(compression());
   app.enableCors({
-    origin: [apiUrl, clientUrl, 'localhost:8080'],
+    origin: [apiUrl, clientUrl, 'localhost', 'vercel.app'],
     credentials: true,
   });
 
