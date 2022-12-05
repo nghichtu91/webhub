@@ -39,22 +39,17 @@ export class SmsController {
 
   @Post('sms-callback')
   async callbacksms(@Body() body: CallbackDTO) {
+    this.logger.log(body.mobile, 'sms-callback');
     try {
       const smsEntity = await this.smsService.findById(
         body.info.trim() as unknown as number,
       );
       if (!smsEntity) {
-        throw new HttpException(
-          `Yêu cầu không tồn tại.`,
-          HttpStatus.BAD_REQUEST,
-        );
+        return '0|Yêu cầu không tồn tại.';
       }
 
       if (!smsEntity.validTime()) {
-        throw new HttpException(
-          'Thời gian hiệu lực hết hạn.',
-          HttpStatus.BAD_REQUEST,
-        );
+        return '0|Thời gian hiệu lực hết hạn.';
       }
 
       const userEntitys = await this.userService.findByUserName(
@@ -64,35 +59,38 @@ export class SmsController {
       const userEntity = userEntitys[0];
 
       if (userEntity.phone !== body.mobile) {
-        throw new HttpException(
-          'Số điện thoại không khớp trong tài khoản',
-          HttpStatus.BAD_REQUEST,
-        );
+        return '0|Số điện thoại không khớp trong tài khoản.';
       }
 
       let userUpdate: IUpdateUserDTO = {};
+      let msg = '';
       switch (smsEntity.action) {
         case 'phonechange':
+          msg = 'Đổi số điện thoại';
           userUpdate = {
             phone: smsEntity.info1,
           };
           break;
         case 'passwordchange':
+          msg = 'Đổi mật khẩu game';
           userUpdate = {
             passWord: smsEntity.info1,
           };
           break;
         case 'secpasschange':
+          msg = 'Đổi mật khẩu cấp 2';
           userUpdate = {
             passWordSecond: smsEntity.info1,
           };
           break;
         case 'secretquestionchange':
+          msg = 'Đổi câu hỏi bí mật và trả lời';
           userUpdate = {
             question: smsEntity.info1,
             answer: smsEntity.info2,
           };
         case 'unlockequipment':
+          msg = 'Mở khoá trang bị';
           userUpdate = {
             point: 1,
           };
@@ -103,10 +101,11 @@ export class SmsController {
 
       await this.userService.update(smsEntity.userName, userUpdate);
       this.smsService.delete(smsEntity.id);
+      return `0|${msg} thành công. Cảm ơn bạn đã sử dụng dịch vụ.`;
     } catch (e: unknown) {
       const errors = e as Error;
       this.logger.error(errors.message, errors.name);
-      throw new HttpException(`Có lỗi từ hệ thống`, HttpStatus.BAD_REQUEST);
+      return '0|Có lỗi trong quá trình xử lý, vui lòng liên hệ gm.';
     }
   }
 
