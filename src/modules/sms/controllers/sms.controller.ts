@@ -92,6 +92,10 @@ export class SmsController {
             question: smsEntity.info1,
             answer: smsEntity.info2,
           };
+        case 'unlockequipment':
+          userUpdate = {
+            point: 1,
+          };
           break;
         default:
           break;

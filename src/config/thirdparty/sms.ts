@@ -2,7 +2,8 @@ export type SmsActions =
   | 'phonechange'
   | 'passwordchange'
   | 'secpasschange'
-  | 'secretquestionchange';
+  | 'secretquestionchange'
+  | 'unlockequipment';
 
 export const SmsServiceNumber = process.env.SMS_SERVICE_NUMBER || '8155';
 export const SmsKeyPrimary = process.env.SMS_KEY_PRIMARY || 'OL';
