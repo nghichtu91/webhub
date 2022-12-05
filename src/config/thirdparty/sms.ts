@@ -5,7 +5,7 @@ export type SmsActions =
   | 'secretquestionchange'
   | 'unlockequipment';
 
-export const SmsServiceNumber = process.env.SMS_SERVICE_NUMBER || '8155';
+export const SmsServiceNumber = process.env.SMS_SERVICE_NUMBER || '8185';
 export const SmsKeyPrimary = process.env.SMS_KEY_PRIMARY || 'ON';
 export const SmsKeySub = process.env.SMS_KEY_SUB || 'PLV';
 export const SmsHosts = process.env.SMS_HOSTS || '127.0.0.1|localhost';
