@@ -1,7 +1,17 @@
-import { SmsActions } from '@config';
+import { SmsActions, SmsExpired } from '@config';
 import { IBaseModel } from '@shared';
-import { BaseEntity, Column, Entity, PrimaryColumn } from 'typeorm';
+import {
+  BaseEntity,
+  BeforeInsert,
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { ISmsDTO } from '../dto/sms.dto';
+import ShortUniqueId from 'short-unique-id';
+import dayjs from 'dayjs';
 
 @Entity({ name: 'SMS' })
 export class SmsEntity extends BaseEntity implements IBaseModel<ISmsDTO> {
@@ -11,14 +21,18 @@ export class SmsEntity extends BaseEntity implements IBaseModel<ISmsDTO> {
   @Column({ name: 'KeyXuLy', type: 'varchar' })
   action: SmsActions;
 
-  @Column({ name: 'time', type: 'int' })
-  time: number;
+  @CreateDateColumn({ name: 'time', type: 'datetime' })
+  time: Date;
 
   @Column({ name: 'status', type: 'tinyint' })
   status: number;
 
-  @PrimaryColumn({ name: 'Code', type: 'int' })
-  code: number;
+  @PrimaryGeneratedColumn('increment')
+  @PrimaryColumn({ name: 'id', type: 'int' })
+  id: number;
+
+  @Column({ name: 'Code', type: 'varchar' })
+  code: string;
 
   @Column({ name: 'dulieu1', type: 'varchar', length: 50 })
   info1?: string;
@@ -30,4 +44,16 @@ export class SmsEntity extends BaseEntity implements IBaseModel<ISmsDTO> {
   info4?: string;
   @Column({ name: 'dulieu5', type: 'varchar', length: 50 })
   info5?: string;
+
+  @BeforeInsert()
+  createTime() {
+    this.time = new Date();
+    const uid = new ShortUniqueId();
+    this.code = uid();
+    this.status = 0;
+  }
+
+  validTime() {
+    return dayjs().diff(this.time, 'minute') <= SmsExpired;
+  }
 }

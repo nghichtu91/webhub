@@ -2,7 +2,7 @@ import { SmsActions } from '@config';
 import { ICreateSmsParams } from './create.param';
 import { ISmsDTO } from './sms.dto';
 
-export type ICreateSmsDTO = Omit<ISmsDTO, ''>;
+export type ICreateSmsDTO = Omit<ISmsDTO, 'id'>;
 
 export class CreateDTO implements ICreateSmsDTO {
   constructor(params: ICreateSmsParams) {
@@ -15,9 +15,9 @@ export class CreateDTO implements ICreateSmsDTO {
 
   userName: string;
   action: SmsActions;
-  time: number;
+  time: Date;
   status: number;
-  code: number;
+  code: string;
 
   info1?: string;
   info2?: string;

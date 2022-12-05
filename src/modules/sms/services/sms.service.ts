@@ -2,11 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { SmsEntity } from '../entities/sms.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Repository } from 'typeorm';
-import { ICreateSmsDTO } from '../dto/create.dto';
+import { CreateDTO, ICreateSmsDTO } from '../dto/create.dto';
 
 interface ISmsService {
   add(data: ICreateSmsDTO): Promise<SmsEntity>;
-  delete(code: number): Promise<DeleteResult>;
+  delete(id: number): Promise<DeleteResult>;
 }
 
 @Injectable()
@@ -16,14 +16,23 @@ export class SmsService implements ISmsService {
     private readonly smsRepo: Repository<SmsEntity>,
   ) {}
 
-  delete(code: number): Promise<DeleteResult> {
+  delete(id: number): Promise<DeleteResult> {
     return this.smsRepo.delete({
-      code: code,
+      id: id,
     });
   }
 
-  add(data: ICreateSmsDTO): Promise<SmsEntity> {
+  add(data: CreateDTO): Promise<SmsEntity> {
     const dataInserting = this.smsRepo.create(data);
     return this.smsRepo.save(dataInserting);
+  }
+
+  async findById(id: number) {
+    const entities = await this.smsRepo.find({
+      where: {
+        id: id,
+      },
+    });
+    return entities[0];
   }
 }

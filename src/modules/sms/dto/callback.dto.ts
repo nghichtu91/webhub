@@ -27,6 +27,9 @@ export class CallbackDTO implements ICallbackDTO {
   @ApiProperty()
   serviceNumber: string;
 
+  /**
+   * id yêu cầu
+   */
   @IsOptional()
   @ApiProperty()
   info: string;

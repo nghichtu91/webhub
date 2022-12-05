@@ -4,7 +4,7 @@ import { IsOptional } from 'class-validator';
 
 export type ICreateSmsParams = Omit<
   ISmsDTO,
-  'userName' | 'action' | 'time' | 'status' | 'code'
+  'userName' | 'action' | 'time' | 'status' | 'code' | 'id'
 >;
 
 export class CreateSmsParams implements ICreateSmsParams {
