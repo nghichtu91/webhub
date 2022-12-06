@@ -133,15 +133,6 @@ export class PaymentController {
     } = body;
     const signStr = CreateMD5(`${PARTNER_KEY}${code}${serial}`);
     this.logger.error(JSON.stringify(body));
-    if (sign !== signStr) {
-      this.logger.error(
-        `[cardCallback] chữ ký sai ${sign} # ${signStr} ${PARTNER_KEY}${code}${serial}`,
-      );
-      throw new HttpException(
-        `Không tìm thấy mã giao dịch!`,
-        HttpStatus.BAD_REQUEST,
-      );
-    }
     const paylog = await this.paymentService.getUserNameByTransId(trans_id);
     if (!paylog) {
       this.logger.error(`[cardCallback] không tìm thấy ${trans_id}`, '');
@@ -150,11 +141,9 @@ export class PaymentController {
         HttpStatus.BAD_REQUEST,
       );
     }
-
     this.logger.log(
       `[cardCallback][${trans_id}] Đổi trạng thái từ ${paylog.status} ----> ${status}`,
     );
-
     switch (status) {
       // card sai mệnh giá
       case PaymentStatus.FAILEDAMOUNT:
@@ -169,6 +158,12 @@ export class PaymentController {
         throw new HttpException(`Thẻ sai mệnh giá`, HttpStatus.BAD_REQUEST);
       // card đúng
       case PaymentStatus.SUCCEEDED:
+        if (sign !== signStr) {
+          this.logger.error(
+            `[cardCallback] chữ ký sai ${sign} # ${signStr} ${PARTNER_KEY}${code}${serial}`,
+          );
+          throw new HttpException(`Chữ ký không đúng.`, HttpStatus.BAD_REQUEST);
+        }
         const coin = this.getCoin(value);
         this.logger.log(
           `[cardCallback][${trans_id}] Tài khoản ${paylog.userName} nạp thẻ thành công, mệnh giá ${body.value} nhận được ${coin}.`,
@@ -194,10 +189,7 @@ export class PaymentController {
       default:
         this.paymentService.updateStatus(trans_id, status, message);
         this.logger.log(`[cardCallback][${trans_id}] Thẻ lỗi.`);
-        throw new HttpException(
-          `Không tìm thấy mã giao dịch!`,
-          HttpStatus.BAD_REQUEST,
-        );
+        throw new HttpException(`Thẻ lỗi`, HttpStatus.BAD_REQUEST);
     }
   }
 
