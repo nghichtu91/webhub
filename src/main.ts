@@ -16,9 +16,30 @@ import {
 import { useContainer } from 'class-validator';
 import { Logger } from '@nestjs/common';
 import { PORT, LISTEN_ON, NODE_ENV } from './config';
+import winston, { createLogger, format } from 'winston';
+import { WinstonModule } from 'nest-winston';
+
+const { combine, timestamp, label, printf } = format;
+
+const myFormat = printf(({ level, message, label, timestamp }) => {
+  return `${timestamp} [${label}] ${level}: ${message}`;
+});
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const instance = createLogger({
+    // options of Winston
+    format: combine(label({ label: 'jxhub' }), timestamp(), myFormat),
+    transports: [
+      new winston.transports.File({ filename: 'error.log', level: 'error' }),
+      new winston.transports.File({ filename: 'combined.log' }),
+    ],
+  });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    logger: WinstonModule.createLogger({
+      instance,
+    }),
+  });
+
   if (NODE_ENV === 'development') {
     devConfig(app);
   } else {

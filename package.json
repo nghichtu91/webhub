@@ -65,6 +65,7 @@
     "mssql": "5.0.5",
     "nanoid": "^4.0.0",
     "nest-access-control": "^2.2.0",
+    "nest-winston": "^1.8.0",
     "nestjs-telegram": "^1.2.0",
     "parse-duration": "^1.0.2",
     "passport": "^0.6.0",
@@ -76,7 +77,8 @@
     "rxjs": "^7.2.0",
     "set-tz": "^0.2.0",
     "short-unique-id": "^4.4.4",
-    "typeorm": "^0.3.10"
+    "typeorm": "^0.3.10",
+    "winston": "^3.8.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",
