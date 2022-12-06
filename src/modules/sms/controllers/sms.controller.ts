@@ -134,7 +134,7 @@ export class SmsController {
 
       const userEntity = userEntitys[0];
 
-      if (userEntity.phone !== qu.mobile) {
+      if (userEntity.phone !== `0${qu.mobile.substring(2)}`) {
         return '0|So dien thoai khong khop trong tai khoan.';
       }
 
