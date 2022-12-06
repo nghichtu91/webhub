@@ -113,7 +113,7 @@ export class SmsController {
 
   @Get('sms-callback')
   async getcallbacksms(@Query() qu: CallbackDTO) {
-    this.logger.log(qu.mobile, qu.info, 'sms-callback');
+    this.logger.log(`${qu.mobile}`, 'sms-callback');
     try {
       const strs = qu.info.trim().toLowerCase().split(SmsKeySub);
       this.logger.log(strs[1] as unknown as number);
