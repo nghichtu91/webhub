@@ -113,18 +113,19 @@ export class SmsController {
 
   @Get('sms-callback')
   async getcallbacksms(@Query() qu: CallbackDTO) {
-    // this.logger.log(request.method, request.body, request.hostname);
-    this.logger.log(qu.mobile, 'sms-callback');
+    this.logger.log(qu.mobile, qu.info, 'sms-callback');
     try {
+      const strs = qu.info.trim().toLowerCase().split(SmsKeySub);
+      this.logger.log(strs[1] as unknown as number);
       const smsEntity = await this.smsService.findById(
-        qu.info.trim() as unknown as number,
+        strs[1] as unknown as number,
       );
       if (!smsEntity) {
-        return '0|Yêu cầu không tồn tại.';
+        return '0|yeu cau khong ton tai.';
       }
 
       if (!smsEntity.validTime()) {
-        return '0|Thời gian hiệu lực hết hạn.';
+        return '0|thoi gian hieu luc da het.';
       }
 
       const userEntitys = await this.userService.findByUserName(
@@ -134,7 +135,7 @@ export class SmsController {
       const userEntity = userEntitys[0];
 
       if (userEntity.phone !== qu.mobile) {
-        return '0|Số điện thoại không khớp trong tài khoản.';
+        return '0|So dien thoai khong khop trong tai khoa.';
       }
 
       let userUpdate: IUpdateUserDTO = {};
@@ -176,11 +177,11 @@ export class SmsController {
 
       await this.userService.update(smsEntity.userName, userUpdate);
       this.smsService.delete(smsEntity.id);
-      return `0|${msg} thành công. Cảm ơn bạn đã sử dụng dịch vụ.`;
+      return `0|${msg} thanh cong. Cam on ban da su dung dich vu.`;
     } catch (e: unknown) {
       const errors = e as Error;
       this.logger.error(errors.message, errors.name);
-      return '0|Có lỗi trong quá trình xử lý, vui lòng liên hệ gm.';
+      return '0|Co loi, xin lien he gm.';
     }
   }
 
