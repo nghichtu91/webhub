@@ -8,7 +8,7 @@ export class LoginInputDTO {
   @ApiProperty({
     default: 'thanhss2',
   })
-  @Transform(({ value }) => value.toUpperCase())
+  @Transform(({ value }) => value.toLowerCase())
   username: string;
 
   @ApiProperty({

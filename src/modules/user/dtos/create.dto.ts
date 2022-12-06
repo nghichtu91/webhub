@@ -9,7 +9,7 @@ import {
 } from 'class-validator';
 import { IsUserAlreadyExist } from '../validators/IsUserAlreadyExist';
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform, TransformFnParams, Type } from 'class-transformer';
+import { Transform, TransformFnParams } from 'class-transformer';
 
 export type ICreateUserDTO = Omit<
   IUserModel,
@@ -33,7 +33,7 @@ export class CreateUserDTO implements ICreateUserDTO {
   @Matches(/^[a-z0-9_-]{3,16}$/, {
     message: 'Tài khoản chỉ dùng số và ký tự.',
   })
-  @Transform(({ value }) => value.toUpperCase())
+  @Transform(({ value }) => value.toLowerCase())
   @Transform(({ value }: TransformFnParams) => value?.trim())
   userName: string;
 
