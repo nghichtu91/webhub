@@ -410,7 +410,7 @@ export class UserController {
         break;
       case 'unlockequipment':
         updateParams = {
-          point: 1,
+          point2: 1,
         };
         break;
       default:

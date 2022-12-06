@@ -168,7 +168,7 @@ export class SmsController {
         case 'unlockequipment':
           msg = 'Mo khoa trang bi';
           userUpdate = {
-            point: 1,
+            point2: 1,
           };
           break;
         default:
