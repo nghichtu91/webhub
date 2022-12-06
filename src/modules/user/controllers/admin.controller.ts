@@ -19,7 +19,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { IUpdateUserDTO } from '../dtos';
+import { IUpdateUserDTO, UpdateUserDTO } from '../dtos';
 import { AppResources } from '@config';
 import { InjectRolesBuilder, RolesBuilder } from 'nest-access-control';
 import { PaymentService } from '@modules/payment/services';
@@ -164,6 +164,16 @@ export class AdminController {
             `admin ${userCurrent.username} thêm vào tài khoản ${username} ${body.point} xu.`,
           );
           break;
+        case 'unlockOrLock':
+          const update: UpdateUserDTO = { point: body.point };
+          await this.userService.update(username, update);
+          this.logger.log(
+            `admin ${userCurrent.username} ${
+              body.point === 1
+                ? `mở khoá tài khoản ${username}`
+                : `khoá tài khoản ${username}`
+            }.`,
+          );
         default:
           break;
       }
