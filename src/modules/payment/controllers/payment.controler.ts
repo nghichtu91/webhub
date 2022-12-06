@@ -132,6 +132,7 @@ export class PaymentController {
       declared_value,
     } = body;
     const signStr = CreateMD5(`${PARTNER_KEY}${code}${serial}`);
+    this.logger.error(JSON.stringify(body));
     if (sign !== signStr) {
       this.logger.error(
         `[cardCallback] chữ ký sai ${sign} # ${signStr} ${PARTNER_KEY}${code}${serial}`,
