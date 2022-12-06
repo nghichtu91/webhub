@@ -142,31 +142,31 @@ export class SmsController {
       let msg = '';
       switch (smsEntity.action) {
         case 'phonechange':
-          msg = 'Đổi số điện thoại';
+          msg = 'Doi so dien thoai';
           userUpdate = {
             phone: smsEntity.info1,
           };
           break;
         case 'passwordchange':
-          msg = 'Đổi mật khẩu game';
+          msg = 'Doi mat khau game';
           userUpdate = {
             passWord: smsEntity.info1,
           };
           break;
         case 'secpasschange':
-          msg = 'Đổi mật khẩu cấp 2';
+          msg = 'Doi mat khau cap 2';
           userUpdate = {
             passWordSecond: smsEntity.info1,
           };
           break;
         case 'secretquestionchange':
-          msg = 'Đổi câu hỏi bí mật và trả lời';
+          msg = 'Doi cau hoi bi mat va cau tra loi';
           userUpdate = {
             question: smsEntity.info1,
             answer: smsEntity.info2,
           };
         case 'unlockequipment':
-          msg = 'Mở khoá trang bị';
+          msg = 'Mo khoa trang bi';
           userUpdate = {
             point: 1,
           };
