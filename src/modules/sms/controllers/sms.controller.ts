@@ -9,11 +9,13 @@ import { UserService } from '@modules/user/services';
 import {
   Body,
   Controller,
+  Get,
   HttpException,
   HttpStatus,
   Logger,
   Param,
   Post,
+  Req,
 } from '@nestjs/common';
 import {
   ApiOkResponse,
@@ -26,6 +28,7 @@ import { CallbackDTO } from '../dto/callback.dto';
 import { CreateDTO } from '../dto/create.dto';
 import { CreateSmsParams } from '../dto/create.param';
 import { SmsService } from '../services';
+import { Request } from 'express';
 
 @Controller('sms')
 @ApiTags('sms')
@@ -107,6 +110,12 @@ export class SmsController {
       this.logger.error(errors.message, errors.name);
       return '0|Có lỗi trong quá trình xử lý, vui lòng liên hệ gm.';
     }
+  }
+
+  @Get('sms-callback')
+  async getcallbacksms(@Req() request: Request) {
+    this.logger.log(request.method, request.body, request.hostname);
+    return '0|Có lỗi trong quá trình xử lý, vui lòng liên hệ gm.';
   }
 
   @JwtAuth()
