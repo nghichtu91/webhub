@@ -1,3 +1,3 @@
 import { ISmsDTO } from './sms.dto';
 
-export type ICreateSmsDTO = Pick<ISmsDTO, 'status'>;
+export type IUpdateSmsDTO = Pick<ISmsDTO, 'status'>;

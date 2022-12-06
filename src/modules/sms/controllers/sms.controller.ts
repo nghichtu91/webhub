@@ -125,6 +125,7 @@ export class SmsController {
       }
 
       if (!smsEntity.validTime()) {
+        this.smsService.update(smsEntity.id, { status: 2 });
         return '0|thoi gian hieu luc da het.';
       }
 
@@ -176,7 +177,8 @@ export class SmsController {
       }
 
       await this.userService.update(smsEntity.userName, userUpdate);
-      this.smsService.delete(smsEntity.id);
+      this.smsService.update(smsEntity.id, { status: 1 });
+
       return `0|${msg} thanh cong. Cam on ban da su dung dich vu.`;
     } catch (e: unknown) {
       const errors = e as Error;

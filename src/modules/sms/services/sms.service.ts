@@ -3,6 +3,7 @@ import { SmsEntity } from '../entities/sms.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Repository } from 'typeorm';
 import { CreateDTO, ICreateSmsDTO } from '../dto/create.dto';
+import { IUpdateSmsDTO } from '../dto/update.dto';
 
 interface ISmsService {
   add(data: ICreateSmsDTO): Promise<SmsEntity>;
@@ -35,5 +36,10 @@ export class SmsService implements ISmsService {
       },
     });
     return entities[0];
+  }
+
+  update(id: number, data: IUpdateSmsDTO) {
+    const smsUpdate = this.smsRepo.create(data);
+    return this.smsRepo.update({ id: id }, smsUpdate);
   }
 }
