@@ -57,7 +57,16 @@ export class UserService {
 
   async getUser(userName: string) {
     const users = await this.userRepository.find({
-      select: ['point1', 'id', 'userName', 'updateInfo'],
+      select: [
+        'point1',
+        'id',
+        'userName',
+        'updateInfo',
+        'phone',
+        'point',
+        'iClientID',
+        'createdAt',
+      ],
       where: {
         userName: userName,
       },

@@ -22,6 +22,7 @@ export interface IUserModel {
   passwordNoEncrypt?: string;
   secPasswordNoEncrypt?: string;
   roles?: string[];
+  iClientID?: number;
 }
 
 export class UserModel implements IUserModel {
@@ -68,4 +69,6 @@ export class UserModel implements IUserModel {
 
   @ApiProperty()
   roles?: string[];
+
+  iClientID?: number;
 }

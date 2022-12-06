@@ -24,7 +24,7 @@ import {
 } from '@nestjs/swagger';
 import { UpdateUserDTO, IUserModel, UserModel } from '../dtos';
 import { Response } from 'express';
-import { ADMIN_USER, AppResources, AppRoles } from '@config';
+import { ADMIN_USER, AppResources, AppRoles, ATM_LINK } from '@config';
 import { InjectRolesBuilder, RolesBuilder } from 'nest-access-control';
 import { HttpStatusCode } from 'axios';
 
@@ -64,13 +64,16 @@ export class UserController {
       throw new HttpException(``, HttpStatusCode.Forbidden);
     }
     const userEntity = await this.userService.getUser(currentUser.username);
-
+    const phone = userEntity.phone || '';
+    console.log(phone);
+    const x = phone.substring(phone.length - 3);
     const reponse: IUserModel = {
       ...userEntity,
       roles:
         userEntity.userName === ADMIN_USER
           ? [AppRoles.ADMIN]
           : [AppRoles.GUEST],
+      phone: `******${phone.substring(phone.length - 3)}`,
     };
     return permission.filter(reponse);
   }
@@ -79,6 +82,15 @@ export class UserController {
   @Get('menus')
   async userMenu(@User() currentUser: ReqUser) {
     const menus = [
+      {
+        code: 'dashboard',
+        label: {
+          zh_CN: 'Dashboard',
+          en_US: 'Dashboard',
+        },
+        icon: 'dashboard',
+        path: '/dashboard',
+      },
       {
         code: 'user',
         label: {
@@ -155,6 +167,15 @@ export class UserController {
             path: '/payment',
           },
           {
+            path: 'payment-atm',
+            code: 'payment-atm',
+            label: {
+              zh_CN: 'Nạp thẻ ATM(triết khấu)',
+              en_US: 'Nạp thẻ ATM(triết khấu)',
+            },
+            href: ATM_LINK,
+          },
+          {
             code: 'payment-histories',
             label: {
               zh_CN: 'Lịch sử nạp',
@@ -177,15 +198,6 @@ export class UserController {
       .grant();
     if (permission.granted) {
       h = [
-        {
-          code: 'dashboard',
-          label: {
-            zh_CN: 'Dashboard',
-            en_US: 'Dashboard',
-          },
-          icon: 'dashboard',
-          path: '/dashboard',
-        },
         {
           code: 'admin',
           icon: 'account',

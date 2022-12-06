@@ -63,6 +63,9 @@ export class UserEntity extends BaseEntity implements IBaseModel<IUserModel> {
   })
   passWordSecond: string;
 
+  @Column({ name: 'iClientID', type: 'bigint', insert: false })
+  iClientID?: number;
+
   @CreateDateColumn({
     name: 'dRegDate',
     nullable: true,
@@ -94,7 +97,7 @@ export class UserEntity extends BaseEntity implements IBaseModel<IUserModel> {
   @Column({
     type: 'smallint',
     name: 'nExtPoint1',
-    default: 0,
+    default: 1,
   })
   point1: number;
 
@@ -102,7 +105,6 @@ export class UserEntity extends BaseEntity implements IBaseModel<IUserModel> {
     type: 'smallint',
     name: 'nExtPoint2',
     default: 0,
-    select: false,
   })
   point2: number;
 
@@ -196,7 +198,7 @@ export class UserEntity extends BaseEntity implements IBaseModel<IUserModel> {
 
   @BeforeInsert()
   defaultValues(): void {
-    this.point = 0;
+    this.point = 1;
     this.point1 = 0;
     this.point2 = 0;
     this.point3 = 0;

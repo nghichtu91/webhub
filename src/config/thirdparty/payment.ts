@@ -47,3 +47,4 @@ export enum PaymentStatus {
 
 export const ATM_KEY = process.env.ATM_KEY || 'giahuyz_vlhoiucvn';
 export const ATM_RATE = +process.env.ATM_RATE || 500;
+export const ATM_LINK = process.env.ATM_LINK || 'https://dantri.com.vn/';
