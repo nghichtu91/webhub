@@ -115,8 +115,8 @@ export class SmsController {
   async getcallbacksms(@Query() qu: CallbackDTO) {
     this.logger.log(`${qu.mobile}`, 'sms-callback');
     try {
-      const strs = qu.info.trim().toLowerCase().split(SmsKeySub);
-      this.logger.log(strs[1] as unknown as number);
+      const strs = qu.info.trim().toLowerCase().split(SmsKeySub.toLowerCase());
+      this.logger.log(strs[1].trim() as unknown as number);
       const smsEntity = await this.smsService.findById(
         strs[1] as unknown as number,
       );
@@ -135,7 +135,7 @@ export class SmsController {
       const userEntity = userEntitys[0];
 
       if (userEntity.phone !== qu.mobile) {
-        return '0|So dien thoai khong khop trong tai khoa.';
+        return '0|So dien thoai khong khop trong tai khoan.';
       }
 
       let userUpdate: IUpdateUserDTO = {};

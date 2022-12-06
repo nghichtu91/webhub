@@ -7,7 +7,7 @@ export interface ICallbackDTO {
   mobile: string;
   serviceNumber: string;
   info: string;
-  REMOTE_ADDR: string;
+  // REMOTE_ADDR: string;
 }
 
 export class CallbackDTO implements ICallbackDTO {
@@ -34,7 +34,7 @@ export class CallbackDTO implements ICallbackDTO {
   @ApiProperty()
   info: string;
 
-  @IsOptional()
-  @ApiProperty()
-  REMOTE_ADDR: string;
+  // @IsOptional()
+  // @ApiProperty()
+  // REMOTE_ADDR: string;
 }

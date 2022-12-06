@@ -28,6 +28,7 @@ export class SmsService implements ISmsService {
   }
 
   async findById(id: number) {
+    console.log(id);
     const entities = await this.smsRepo.find({
       where: {
         id: id,

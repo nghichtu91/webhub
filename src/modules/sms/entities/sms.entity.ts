@@ -12,6 +12,8 @@ import {
 import { ISmsDTO } from '../dto/sms.dto';
 import ShortUniqueId from 'short-unique-id';
 import dayjs from 'dayjs';
+import setTZ from 'set-tz';
+setTZ('Asia/Bangkok');
 
 @Entity({ name: 'SMS' })
 export class SmsEntity extends BaseEntity implements IBaseModel<ISmsDTO> {
@@ -54,6 +56,7 @@ export class SmsEntity extends BaseEntity implements IBaseModel<ISmsDTO> {
   }
 
   validTime() {
-    return dayjs().diff(this.time, 'minute') <= SmsExpired;
+    const expried = SmsExpired as number;
+    return dayjs().diff(this.time, 'minute') <= expried;
   }
 }

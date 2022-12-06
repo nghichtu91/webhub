@@ -1,5 +1,6 @@
 import path from 'path';
 import * as dotenv from 'dotenv';
+
 // setup env
 dotenv.config({ path: path.resolve(process.cwd(), '.env'), override: true });
 
