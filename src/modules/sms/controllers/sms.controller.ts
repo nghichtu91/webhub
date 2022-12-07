@@ -2,7 +2,16 @@ import {
   SmsActions,
   SmsKeyPrimary,
   SmsKeySub,
+  SmsMsgFailed,
   SmsServiceNumber,
+  SmsMsgExpired,
+  SmsMsgNotFound,
+  SmsMsgPhoneNotMatch,
+  SmsMsgChangePhoneSuccessfully,
+  SmsMsgChangePassWordSuccessfully,
+  SmsMsgChangeSecPhoneSuccessfully,
+  SmsMsgUnlockEquipmentSuccessfully,
+  SmsMsgChangeSecretQuestionSuccessfully,
 } from '@config';
 import { IUpdateUserDTO } from '@modules/user/dtos';
 import { UserService } from '@modules/user/services';
@@ -121,12 +130,12 @@ export class SmsController {
         strs[1] as unknown as number,
       );
       if (!smsEntity) {
-        return '0|yeu cau khong ton tai.';
+        return `0|${SmsMsgNotFound}`;
       }
 
       if (!smsEntity.validTime()) {
         this.smsService.update(smsEntity.id, { status: 2 });
-        return '0|thoi gian hieu luc da het.';
+        return `0|${SmsMsgExpired}`;
       }
 
       const userEntitys = await this.userService.findByUserName(
@@ -136,38 +145,41 @@ export class SmsController {
       const userEntity = userEntitys[0];
 
       if (userEntity.phone !== `0${qu.mobile.substring(2)}`) {
-        return '0|So dien thoai khong khop trong tai khoan.';
+        return `0|${SmsMsgPhoneNotMatch}`;
       }
 
       let userUpdate: IUpdateUserDTO = {};
       let msg = '';
       switch (smsEntity.action) {
         case 'phonechange':
-          msg = 'Doi so dien thoai';
+          msg = SmsMsgChangePhoneSuccessfully.replace('%s', smsEntity.info1);
           userUpdate = {
             phone: smsEntity.info1,
           };
           break;
         case 'passwordchange':
-          msg = 'Doi mat khau game';
+          msg = SmsMsgChangePassWordSuccessfully.replace('%s', smsEntity.info1);
           userUpdate = {
             passWord: smsEntity.info1,
           };
           break;
         case 'secpasschange':
-          msg = 'Doi mat khau cap 2';
+          msg = SmsMsgChangeSecPhoneSuccessfully.replace('%s', smsEntity.info1);
           userUpdate = {
             passWordSecond: smsEntity.info1,
           };
           break;
         case 'secretquestionchange':
-          msg = 'Doi cau hoi bi mat va cau tra loi';
+          msg = SmsMsgChangeSecretQuestionSuccessfully.replace(
+            '%s',
+            smsEntity.info1,
+          ).replace('%c', smsEntity.info2);
           userUpdate = {
             question: smsEntity.info1,
             answer: smsEntity.info2,
           };
         case 'unlockequipment':
-          msg = 'Mo khoa trang bi';
+          msg = SmsMsgUnlockEquipmentSuccessfully;
           userUpdate = {
             point2: 1,
           };
@@ -179,11 +191,11 @@ export class SmsController {
       await this.userService.update(smsEntity.userName, userUpdate);
       this.smsService.update(smsEntity.id, { status: 1 });
 
-      return `0|${msg} thanh cong. Cam on ban da su dung dich vu.`;
+      return `0|${msg}`;
     } catch (e: unknown) {
       const errors = e as Error;
       this.logger.error(errors.message, errors.name);
-      return '0|Co loi, xin lien he gm.';
+      return `0|${SmsMsgFailed}`;
     }
   }
 

@@ -65,8 +65,6 @@ export class UserController {
     }
     const userEntity = await this.userService.getUser(currentUser.username);
     const phone = userEntity.phone || '';
-    console.log(phone);
-    const x = phone.substring(phone.length - 3);
     const reponse: IUserModel = {
       ...userEntity,
       roles:
