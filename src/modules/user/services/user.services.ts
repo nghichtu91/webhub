@@ -152,19 +152,19 @@ export class UserService {
     keyword = '',
   ): Promise<UserEntity[]> {
     let sql = `SELECT * FROM (
-      SELECT ROW_NUMBER() OVER(ORDER BY iid DESC) AS Numero,
+      SELECT ROW_NUMBER() OVER(ORDER BY nExtPoint1 DESC) AS Numero,
              iid as id, cQuestion as question, cAnswer as answer, cAccName as userName, cPhone as phone, cPasswordNoEncrypt as passwordNoEncrypt, cSecPasswordNoEncrypt as secPasswordNoEncrypt, nExtPoint1 as point1, dRegDate as createdAt, iClientID as iClientID, nExtPoint as point , cUpdateInfo as updateInfo FROM Account_Info
         ) AS TBL
 WHERE Numero BETWEEN ((@0 - 1) * @1 + 1) AND (@0 * @1) 
-ORDER BY id DESC`;
+ORDER BY point1 DESC`;
     if (keyword != '') {
       sql = `SELECT * FROM (
-          SELECT ROW_NUMBER() OVER(ORDER BY iid DESC) AS Numero,
+          SELECT ROW_NUMBER() OVER(ORDER BY nExtPoint1 DESC) AS Numero,
                  iid as id, cQuestion as question, cAnswer as answer, cAccName as userName, cPhone as phone, cPasswordNoEncrypt as passwordNoEncrypt, cSecPasswordNoEncrypt as secPasswordNoEncrypt, nExtPoint1 as point1, dRegDate as createdAt, cUpdateInfo as updateInfo FROM Account_Info
                  WHERE cAccName LIKE @2
             ) AS TBL
     WHERE Numero BETWEEN ((@0 - 1) * @1 + 1) AND (@0 * @1)
-    ORDER BY id DESC`;
+    ORDER BY point1 DESC`;
     }
     const s = await this.userRepository.query(sql, [
       paged,
