@@ -27,7 +27,8 @@ export const CardPriceList = {
   500000: 1000,
   1000000: 2000,
 };
-export const Cardbonus = 0.3; // tính %;
+
+export const Cardbonus = +process.env.CARD_BONUS || 0; // tính %;
 export const GATEWAY_URL = 'http://naptudong.com/chargingws/v2';
 export const PARTNER_ID = '6471455261';
 export const PARTNER_KEY = '486b5afa44dc72a2c8cd991bc7f2a44e';

@@ -70,7 +70,8 @@ export class PaymentController {
         Cardbonus * CardPriceList[price]
       }`,
     );
-    return Math.floor(CardPriceList[price] + Cardbonus * CardPriceList[price]);
+    const bonus = CardPriceList[price] * Cardbonus;
+    return Math.floor(CardPriceList[price] + bonus);
   }
 
   getCoinForAtm(price: number) {
@@ -81,7 +82,7 @@ export class PaymentController {
     if (price >= 1100000 && price < 2000000) {
       bonus = 1.15;
     }
-    if (price >= 2000000 && price <= 10000000) {
+    if (price >= 2000000 && price <= 20000000) {
       bonus = 1.2;
     }
     return Math.floor((price / ATM_RATE) * bonus);
