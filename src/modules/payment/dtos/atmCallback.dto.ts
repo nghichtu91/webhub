@@ -6,7 +6,7 @@ export type IAtmCallbackDTO = {
   so_tien: number;
   ten_bank?: string;
   id_khach?: string;
-  ma_baoMat?: string;
+  ma_baoMat: string;
   trans_id?: string;
   noi_dung?: string;
 };
@@ -26,8 +26,8 @@ export class AtmCallbackDTO implements IAtmCallbackDTO {
   id_khach?: string;
 
   @IsOptional()
-  @ApiProperty({ default: '' })
-  ma_baoMat?: string;
+  @ApiProperty()
+  ma_baoMat: string;
 
   @IsOptional()
   @ApiProperty()
