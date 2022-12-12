@@ -199,7 +199,6 @@ export class PaymentController {
     summary: 'callback atm',
   })
   async atmCallback(@Body() body: AtmCallbackDTO) {
-    console.log(body);
     const { so_tien, ten_bank, trans_id, id_khach, ma_baoMat } = body;
     if (ma_baoMat !== ATM_KEY) {
       this.logger.error('[AtmCallback] mã bảo mật không đúng!');
