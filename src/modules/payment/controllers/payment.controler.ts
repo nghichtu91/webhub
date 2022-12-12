@@ -206,7 +206,7 @@ export class PaymentController {
     }
     if (so_tien < 50000) {
       this.logger.error('[AtmCallback] Số tiền nhỏ hơn 20.000 vnd!');
-      throw new HttpException(`Số tiền nhỏ hơn 20.000 vnd!`, 400);
+      throw new HttpException(`Số tiền nhỏ hơn 50.000 vnd!`, 400);
     }
     const user = await this.userService.findByUserName(id_khach);
     if (!user[0]) {
