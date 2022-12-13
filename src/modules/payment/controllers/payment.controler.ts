@@ -23,6 +23,7 @@ import {
   Get,
   Logger,
   Query,
+  Req,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -40,6 +41,7 @@ import { UserService } from '@modules/user/services';
 import { AtmCallbackDTO } from '../dtos';
 import { PaymentEntity } from '../entities';
 import { TelegramService } from 'nestjs-telegram';
+import { Request } from 'express';
 
 interface IPageReponse<T> {
   pageNum: number;
@@ -198,7 +200,9 @@ export class PaymentController {
   @ApiOperation({
     summary: 'callback atm',
   })
-  async atmCallback(@Body() body: AtmCallbackDTO) {
+  async atmCallback(@Body() body: AtmCallbackDTO, @Req() cc: Request) {
+    console.log(body, cc);
+
     const { so_tien, ten_bank, trans_id, id_khach, ma_baoMat } = body;
     if (ma_baoMat !== ATM_KEY) {
       this.logger.error('[AtmCallback] mã bảo mật không đúng!');
