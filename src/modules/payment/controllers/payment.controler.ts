@@ -200,14 +200,16 @@ export class PaymentController {
   @ApiOperation({
     summary: 'callback atm',
   })
-  async atmCallback(@Body() body: AtmCallbackDTO, @Req() cc: Request) {
-    console.log(body, cc);
-
+  async atmCallback(@Body() body: AtmCallbackDTO) {
     const { so_tien, ten_bank, trans_id, id_khach, ma_baoMat } = body;
     if (ma_baoMat !== ATM_KEY) {
       this.logger.error('[AtmCallback] mã bảo mật không đúng!');
       throw new HttpException(`Mã bảo mật không đúng!`, 400);
     }
+    if (!id_khach) {
+      throw new HttpException(`Tài khoản không có.`, 400);
+    }
+
     if (so_tien < 50000) {
       this.logger.error('[AtmCallback] Số tiền nhỏ hơn 20.000 vnd!');
       throw new HttpException(`Số tiền nhỏ hơn 50.000 vnd!`, 400);

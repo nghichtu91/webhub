@@ -18,6 +18,7 @@ import { Logger } from '@nestjs/common';
 import { PORT, LISTEN_ON, NODE_ENV } from './config';
 import winston, { createLogger, format } from 'winston';
 import { WinstonModule } from 'nest-winston';
+import express from 'express';
 
 const { combine, timestamp, label, printf } = format;
 
@@ -65,6 +66,7 @@ async function bootstrap() {
   // app.setViewEngine('hbs');
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
   configSession(app);
+
   app.listen(PORT, LISTEN_ON, () => {
     Logger.log(`Nest listening on http://${LISTEN_ON}:${PORT}`, 'Bootstrap');
   });
