@@ -1,9 +1,7 @@
 export enum CardTypes {
   VIETTEL = 'VIETTEL',
   VINAPHONE = 'VINAPHONE',
-  VTC = 'VTC',
-  GATE = 'GATE',
-  ZING = 'ZING',
+  MOBIFONE = 'MOBIFONE',
   ATM = 'ATM',
 }
 export enum Gateways {
