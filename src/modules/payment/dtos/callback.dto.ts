@@ -21,7 +21,7 @@ export interface IPaymentResponse {
   telco?: string;
   serial?: string;
   code?: string;
-  status: number;
+  status: string;
   message?: string;
   sign?: string;
 }

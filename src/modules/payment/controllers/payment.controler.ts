@@ -134,8 +134,10 @@ export class PaymentController {
       serial,
       declared_value,
     } = body;
+
     const signStr = CreateMD5(`${PARTNER_KEY}${code}${serial}`);
-    this.logger.error(JSON.stringify(body));
+    this.logger.log(JSON.stringify(body));
+
     const paylog = await this.paymentService.getUserNameByTransId(trans_id);
     if (!paylog) {
       this.logger.error(`[cardCallback] không tìm thấy ${trans_id}`, '');
@@ -152,7 +154,7 @@ export class PaymentController {
       case PaymentStatus.FAILEDAMOUNT:
         this.paymentService.updateStatus(
           trans_id,
-          status,
+          parseInt(status),
           `Khai báo ${declared_value} giá trị thẻ là ${value}`,
         );
         this.logger.log(
@@ -173,7 +175,7 @@ export class PaymentController {
         );
         this.paymentService.update(trans_id, {
           coin: coin,
-          status: status,
+          status: parseInt(status),
           userName: paylog.userName,
           gateway: paylog.gateway,
           cardValue: paylog.cardValue,
@@ -190,7 +192,7 @@ export class PaymentController {
         }
         break;
       default:
-        this.paymentService.updateStatus(trans_id, status, message);
+        this.paymentService.updateStatus(trans_id, parseInt(status), message);
         this.logger.log(`[cardCallback][${trans_id}] Thẻ lỗi.`);
         throw new HttpException(`Thẻ lỗi`, HttpStatus.BAD_REQUEST);
     }
@@ -311,7 +313,7 @@ export class PaymentController {
         transactionCode: data.trans_id,
         gateway: gateway,
         comment: data.message,
-        status: data.status,
+        status: parseInt(data.status),
       };
       switch (data.status) {
         // card lỗi
