@@ -35,7 +35,6 @@ export class PaymentService implements IPaymentService {
     const findUsers = await this.paymentRepo.find({
       where: {
         transactionCode: trans_id,
-        status: parseInt(PaymentStatus.PENDING),
       },
     });
     return findUsers[0];
