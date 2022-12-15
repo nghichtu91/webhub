@@ -24,6 +24,7 @@ export interface IPaymentResponse {
   status: string;
   message?: string;
   sign?: string;
+  callback_sign?: string;
 }
 
 export interface IPaymentResponseB {
@@ -84,6 +85,10 @@ export class PaymentCallbackDTO implements IPaymentResponse {
   @IsOptional()
   @ApiProperty()
   sign?: string;
+
+  @IsOptional()
+  @ApiProperty()
+  callback_sign?: string;
 }
 
 export class PaymentCallbackDTOB implements IPaymentResponseB {

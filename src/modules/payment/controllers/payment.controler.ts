@@ -129,10 +129,10 @@ export class PaymentController {
       trans_id,
       value,
       message,
-      sign,
       code,
       serial,
       declared_value,
+      callback_sign,
     } = body;
 
     const signStr = CreateMD5(`${PARTNER_KEY}${code}${serial}`);
@@ -163,9 +163,9 @@ export class PaymentController {
         throw new HttpException(`Thẻ sai mệnh giá`, HttpStatus.BAD_REQUEST);
       // card đúng
       case PaymentStatus.SUCCEEDED:
-        if (sign !== signStr) {
+        if (callback_sign !== signStr) {
           this.logger.error(
-            `[cardCallback] chữ ký sai ${sign} # ${signStr} ${PARTNER_KEY}${code}${serial}`,
+            `[cardCallback] chữ ký sai ${callback_sign} # ${signStr} ${PARTNER_KEY}${code}${serial}`,
           );
           throw new HttpException(`Chữ ký không đúng.`, HttpStatus.BAD_REQUEST);
         }
