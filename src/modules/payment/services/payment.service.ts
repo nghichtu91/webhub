@@ -77,7 +77,7 @@ export class PaymentService implements IPaymentService {
   ): Promise<PaymentEntity[]> {
     const sql = `SELECT coin as coin, id, status, cardpin as cardPin, gateway_api as gateway, cardtype as cardType, content as comment, cardvalue as cardValue, cardseri as cardSeri FROM (
       SELECT ROW_NUMBER() OVER(ORDER BY id DESC) AS Numero,
-             * FROM payment_card_log WHERE username =@2
+             * FROM payment_card_log WHERE username =@2 AND (cardtype != 'ATM' OR cardtype !='atm')
         ) AS TBL
 WHERE Numero BETWEEN ((@0 - 1) * @1 + 1) AND (@0 * @1) 
 ORDER BY id DESC`;
