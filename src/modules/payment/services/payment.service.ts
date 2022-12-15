@@ -5,7 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { AxiosResponse } from 'axios';
 import { Observable } from 'rxjs';
 import { Repository } from 'typeorm';
-import { IPaymentResponse, PaymentModel } from '../dtos';
+import { IPaymentResponse, IPaymentResponseB, PaymentModel } from '../dtos';
 import { CreatePaymentDTO } from '../dtos/create.dto';
 import { IPaymentUpdateDTO } from '../dtos/update.dto';
 import { PaymentEntity } from '../entities';
@@ -22,8 +22,8 @@ export class PaymentService implements IPaymentService {
     private readonly httpService: HttpService,
   ) {}
 
-  checkCardMobi(data: any): Observable<AxiosResponse<IPaymentResponse>> {
-    return this.httpService.post<IPaymentResponse>(GATEWAY_URL, data);
+  checkCardMobi(data: any): Observable<AxiosResponse<IPaymentResponseB>> {
+    return this.httpService.post<IPaymentResponseB>(GATEWAY_URL, data);
   }
 
   instert(data: CreatePaymentDTO) {

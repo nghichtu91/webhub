@@ -26,10 +26,70 @@ export interface IPaymentResponse {
   sign?: string;
 }
 
+export interface IPaymentResponseB {
+  trans_id?: string;
+  request_id?: string;
+  amount?: number;
+  value?: number;
+  declared_value: number;
+  telco?: string;
+  serial?: string;
+  code?: string;
+  status: number;
+  message?: string;
+  sign?: string;
+}
+
 export class PaymentCallbackDTO implements IPaymentResponse {
   @IsOptional()
   @ApiProperty()
   status: StatusPayment;
+
+  @ApiProperty()
+  @IsOptional()
+  message?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  amount?: number;
+
+  @ApiProperty()
+  @IsOptional()
+  code?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  serial?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  request_id?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  telco?: string;
+
+  @IsOptional()
+  @ApiProperty()
+  trans_id?: string;
+
+  @IsOptional()
+  @ApiProperty()
+  value: number;
+
+  @IsOptional()
+  @ApiProperty()
+  declared_value: number;
+
+  @IsOptional()
+  @ApiProperty()
+  sign?: string;
+}
+
+export class PaymentCallbackDTOB implements IPaymentResponseB {
+  @IsOptional()
+  @ApiProperty()
+  status: number;
 
   @ApiProperty()
   @IsOptional()

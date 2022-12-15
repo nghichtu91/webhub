@@ -35,11 +35,7 @@ async function bootstrap() {
       new winston.transports.File({ filename: 'combined.log' }),
     ],
   });
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    logger: WinstonModule.createLogger({
-      instance,
-    }),
-  });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   if (NODE_ENV === 'development') {
     devConfig(app);

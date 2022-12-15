@@ -304,6 +304,7 @@ export class PaymentController {
       const { data } = await firstValueFrom(
         this.paymentService.checkCardMobi(cardInfo).pipe(),
       );
+      console.log(data);
       //add field miss
       const newPaymentData: CreatePaymentDTO = {
         ...body,
@@ -313,23 +314,23 @@ export class PaymentController {
         transactionCode: data.trans_id,
         gateway: gateway,
         comment: data.message,
-        status: parseInt(data.status),
+        status: data.status,
       };
       switch (data.status) {
         // card lỗi
-        case PaymentStatus.FAILED:
+        case 3:
           throw new HttpException(
             'Thẻ không đúng, vui lòng sử dụng thẻ khác!',
             HttpStatus.PAYMENT_REQUIRED,
           );
         // hệ thống bảo trì
-        case PaymentStatus.MAINTENANCE:
+        case 4:
           throw new HttpException(
             'Hệ thống nạp thể đang bảo trì, vui lòng sử dụng lại sau.',
             HttpStatus.ACCEPTED,
           );
         // card đang chờ
-        case PaymentStatus.PENDING:
+        case 99:
           newPaymentData.comment = '';
           this.paymentService.instert(newPaymentData);
           throw new HttpException(
@@ -337,13 +338,13 @@ export class PaymentController {
             HttpStatus.ACCEPTED,
           );
         // card sai mệnh giá
-        case PaymentStatus.FAILEDAMOUNT:
+        case 2:
           this.logger.log(
             `[checkout][${data.trans_id}] Tài khoản ${username} nạp thẻ thành công, nhưng sai mệnh giá. Giá trị thật là ${data.value}, giá khai báo ${data.declared_value}.`,
           );
           throw new HttpException('Thẻ sai mệnh giá!', HttpStatus.BAD_REQUEST);
         // card đúng
-        case PaymentStatus.SUCCEEDED:
+        case 1:
           const coin = this.getCoin(data.value);
           newPaymentData.coin = coin;
           newPaymentData.cardValue = data.value;
@@ -353,10 +354,15 @@ export class PaymentController {
             `[checkout][${data.trans_id}] Tài khoản ${username} nạp thẻ thành công, mệnh giá ${data.value} nhận được ${coin}.`,
           );
           throw new HttpException(
-            PaymentStatus.SUCCEEDED === data.status
+            1 === data.status
               ? 'Nạp thẻ thành công, chúc bạn chơi game vui vẻ!'
               : 'Thẻ được thêm vào hệ thống, nhưng sai mệnh giá.',
             HttpStatus.CREATED,
+          );
+        case 102:
+          throw new HttpException(
+            'Yêu cầu nạp thẻ đã tồn tại, vui lòng sử dụng thẻ khác.',
+            HttpStatus.BAD_REQUEST,
           );
         default:
           this.logger.error(data.message, currentUser.username);
