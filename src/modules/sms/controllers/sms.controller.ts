@@ -178,6 +178,7 @@ export class SmsController {
             question: smsEntity.info1,
             answer: smsEntity.info2,
           };
+          break;
         case 'unlockequipment':
           msg = SmsMsgUnlockEquipmentSuccessfully;
           userUpdate = {
