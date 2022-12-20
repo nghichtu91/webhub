@@ -23,7 +23,6 @@ import {
   Get,
   Logger,
   Query,
-  Req,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -41,7 +40,6 @@ import { UserService } from '@modules/user/services';
 import { AtmCallbackDTO } from '../dtos';
 import { PaymentEntity } from '../entities';
 import { TelegramService } from 'nestjs-telegram';
-import { Request } from 'express';
 
 interface IPageReponse<T> {
   pageNum: number;

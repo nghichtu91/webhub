@@ -423,6 +423,7 @@ export class UserController {
           question: data.question,
           answer: data.answer,
           passWordSecond: data.passWordSecond,
+          phone: data.phone,
         };
         break;
       case 'unlockequipment':
