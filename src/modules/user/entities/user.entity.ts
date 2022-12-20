@@ -228,4 +228,11 @@ export class UserEntity extends BaseEntity implements IBaseModel<IUserModel> {
       this.answer !== this.answer
     );
   }
+
+  checkEmail(email?: string) {
+    if (!this.email || this.email === '0@gmail.com' || this.email === email) {
+      return true;
+    }
+    return false;
+  }
 }
