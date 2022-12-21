@@ -22,10 +22,10 @@ import {
 export function prodConfig(app: NestExpressApplication): void {
   app.use(helmet());
   app.use(compression());
-  app.enableCors({
-    origin: '*',
-    credentials: true,
-  });
+  // app.enableCors({
+  //   origin: '*',
+  //   credentials: true,
+  // });
 
   if (enableLogging) {
     const logFile = isAbsolute(logDir)
