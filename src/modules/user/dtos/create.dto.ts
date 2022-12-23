@@ -8,7 +8,7 @@ import {
   Matches,
 } from 'class-validator';
 import { IsUserAlreadyExist } from '../validators/IsUserAlreadyExist';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { Transform, TransformFnParams } from 'class-transformer';
 
 export type ICreateUserDTO = Omit<
@@ -37,14 +37,6 @@ export class CreateUserDTO implements ICreateUserDTO {
   @Transform(({ value }: TransformFnParams) => value?.trim())
   userName: string;
 
-  // @IsNotEmpty()
-  // @IsString()
-  // @MinLength(8)
-  // @MaxLength(32)
-  // @ApiProperty({ description: 'Mật khẩu cấp 2' })
-  // @Transform(({ value }: TransformFnParams) => value?.trim())
-  // passWordSecond: string;
-
   @IsNotEmpty()
   @IsString()
   @MinLength(8)
@@ -70,4 +62,7 @@ export class CreateUserDTO implements ICreateUserDTO {
   @IsOptional()
   @ApiProperty()
   answer?: string;
+
+  @ApiHideProperty()
+  ip?: string;
 }

@@ -167,6 +167,9 @@ export class UserEntity extends BaseEntity implements IBaseModel<IUserModel> {
   })
   updateInfo?: string;
 
+  @Column({ type: 'varchar', name: 'cIpAddress' })
+  ip?: string;
+
   @BeforeInsert()
   createTime(): void {
     this.createdAt = new Date();

@@ -9,6 +9,7 @@ import {
   Get,
   Res,
   HttpException,
+  Ip,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -74,7 +75,8 @@ export class JwtAuthController {
     description: 'Có lỗi trong quá trình đăng ký!',
   })
   @ApiBody({ type: CreateUserDTO })
-  register(@Body() data: CreateUserDTO) {
+  register(@Ip() ip: any, @Body() data: CreateUserDTO) {
+    data.ip = ip;
     return this.authService.jwtRegister(data);
   }
 

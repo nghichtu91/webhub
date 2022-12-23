@@ -71,4 +71,5 @@ export class UserModel implements IUserModel {
   roles?: string[];
 
   iClientID?: number;
+  ip?: string;
 }

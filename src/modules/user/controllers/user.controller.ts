@@ -412,6 +412,15 @@ export class UserController {
         };
         break;
       case 'firstupdate':
+        if (
+          findingUser[0].updateInfo &&
+          findingUser[0].updateInfo.trim() === '1'
+        ) {
+          throw new HttpException(
+            `Thông tin đã được cập nhật.`,
+            HttpStatus.BAD_REQUEST,
+          );
+        }
         if (!findingUser[0].checkEmail(data.email)) {
           throw new HttpException(
             `Email cung cấp không đúng, vui lòng kiểm tra lại!`,
@@ -422,8 +431,10 @@ export class UserController {
           question: data.question,
           answer: data.answer,
           passWordSecond: data.passWordSecond,
-          phone: data.phone,
         };
+        if (!findingUser[0].phone) {
+          updateParams.phone = data.phone;
+        }
         break;
       case 'unlockequipment':
         updateParams = {
