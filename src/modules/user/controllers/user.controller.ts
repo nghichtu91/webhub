@@ -390,13 +390,6 @@ export class UserController {
       );
     }
 
-    if (!findingUser[0].checkEmail(data.email)) {
-      throw new HttpException(
-        `Email cung cấp không đúng, vui lòng kiểm tra lại!`,
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
     switch (action) {
       case 'changepassword':
         updateParams = {
@@ -419,6 +412,12 @@ export class UserController {
         };
         break;
       case 'firstupdate':
+        if (!findingUser[0].checkEmail(data.email)) {
+          throw new HttpException(
+            `Email cung cấp không đúng, vui lòng kiểm tra lại!`,
+            HttpStatus.BAD_REQUEST,
+          );
+        }
         updateParams = {
           question: data.question,
           answer: data.answer,
