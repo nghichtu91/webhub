@@ -1,8 +1,17 @@
 import path from 'path';
 import * as dotenv from 'dotenv';
 
+const NODEENV = process.env.NODE_ENV || 'development';
+
 // setup env
-dotenv.config({ path: path.resolve(process.cwd(), '.env'), override: true });
+if (NODEENV === 'production') {
+  dotenv.config({ path: path.resolve(process.cwd(), '.env'), override: true });
+} else {
+  dotenv.config({
+    path: path.resolve(process.cwd(), `.env.${NODEENV}`),
+    override: true,
+  });
+}
 
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -18,7 +27,6 @@ import { Logger } from '@nestjs/common';
 import { PORT, LISTEN_ON, NODE_ENV } from './config';
 import winston, { createLogger, format } from 'winston';
 import { WinstonModule } from 'nest-winston';
-import express from 'express';
 
 const { combine, timestamp, label, printf } = format;
 
@@ -36,9 +44,9 @@ async function bootstrap() {
     ],
   });
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    logger: WinstonModule.createLogger({
-      instance,
-    }),
+    // logger: WinstonModule.createLogger({
+    //   instance,
+    // }),
   });
 
   if (NODE_ENV === 'development') {

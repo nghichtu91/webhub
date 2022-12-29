@@ -174,6 +174,11 @@ export class AdminController {
                 : `khoá tài khoản ${username}`
             }.`,
           );
+          break;
+        case 'resetaccount':
+          const resetUpdate: UpdateUserDTO = { updateInfo: '0' };
+          await this.userService.update(username, resetUpdate);
+          break;
         default:
           break;
       }

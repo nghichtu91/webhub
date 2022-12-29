@@ -13,6 +13,7 @@ export type IUpdateUserDTO = Pick<
   | 'question'
   | 'passWordSecond'
   | 'passWord'
+  | 'updateInfo'
 >;
 
 export class UpdateUserDTO implements IUpdateUserDTO {
@@ -98,4 +99,6 @@ export class UpdateUserDTO implements IUpdateUserDTO {
   @IsOptional()
   @ApiProperty()
   sms?: boolean;
+
+  updateInfo?: string;
 }

@@ -29,4 +29,5 @@ export function devConfig(app: NestExpressApplication): void {
   SwaggerModule.setup('/docs', app, docs); // Notice: Route to http://API_URL:PORT/docs-json to get Swagger json-docs
   logger.debug(`Swagger docs: docs`);
   logger.debug(`Swagger-JSON file: /docs-json`);
+  logger.debug('development');
 }
