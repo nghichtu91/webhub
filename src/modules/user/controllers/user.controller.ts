@@ -212,13 +212,13 @@ export class UserController {
                 en_US: 'Danh sách tài khoản',
               },
             },
-            // {
-            //   path: '/admin/payments',
-            //   label: {
-            //     zh_CN: 'Admin',
-            //     en_US: 'Danh Payments',
-            //   },
-            // },
+            {
+              path: '/admin/payments',
+              label: {
+                zh_CN: 'Admin',
+                en_US: 'Lịch sử nạp thẻ',
+              },
+            },
           ],
         },
       ].concat(h);
