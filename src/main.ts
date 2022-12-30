@@ -26,12 +26,15 @@ import { useContainer } from 'class-validator';
 import { Logger } from '@nestjs/common';
 import { PORT, LISTEN_ON, NODE_ENV } from './config';
 import winston, { createLogger, format } from 'winston';
-import { WinstonModule } from 'nest-winston';
+import {
+  utilities as nestWinstonModuleUtilities,
+  WinstonModule,
+} from 'nest-winston';
 
 const { combine, timestamp, label, printf } = format;
 
-const myFormat = printf(({ level, message, label, timestamp }) => {
-  return `${timestamp} [${label}] ${level}: ${message}`;
+const myFormat = printf(({ level, message, label, timestamp, context }) => {
+  return `${timestamp} [${label}] [${context}] ${message}`;
 });
 
 async function bootstrap() {
@@ -40,7 +43,21 @@ async function bootstrap() {
     format: combine(label({ label: 'jxhub' }), timestamp(), myFormat),
     transports: [
       new winston.transports.File({ filename: 'error.log', level: 'error' }),
-      new winston.transports.File({ filename: 'combined.log' }),
+      new winston.transports.File({
+        filename: 'combined.log',
+        level: 'info',
+      }),
+      new winston.transports.File({
+        filename: 'gm.log',
+        level: 'warn',
+      }),
+      new winston.transports.Console({
+        format: winston.format.combine(
+          winston.format.timestamp(),
+          winston.format.ms(),
+          nestWinstonModuleUtilities.format.nestLike('jxhub'),
+        ),
+      }),
     ],
   });
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {

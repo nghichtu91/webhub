@@ -51,6 +51,10 @@ export class AdminController {
       .grant();
   }
 
+  private adminLog(username: string, messages: string) {
+    return this.logger.warn(`Tài khoản admin ${username} ${messages}`);
+  }
+
   @JwtAuth()
   @ApiOperation({ summary: 'Danh sách tài khoản' })
   @ApiOkResponse({
@@ -167,15 +171,17 @@ export class AdminController {
       switch (action) {
         case 'addxu':
           await this.userService.addMoney(username, body.point);
-          this.logger.log(
-            `admin ${userCurrent.username} thêm vào tài khoản ${username} ${body.point} xu.`,
+          this.adminLog(
+            userCurrent.username,
+            `thêm vào tài khoản ${username} ${body.point} xu.`,
           );
           break;
         case 'unlockOrLock':
           const update: UpdateUserDTO = { point: body.point };
           await this.userService.update(username, update);
-          this.logger.log(
-            `admin ${userCurrent.username} ${
+          this.adminLog(
+            userCurrent.username,
+            `${
               body.point === 1
                 ? `mở khoá tài khoản ${username}`
                 : `khoá tài khoản ${username}`
@@ -183,7 +189,12 @@ export class AdminController {
           );
           break;
         case 'resetaccount':
-          const resetUpdate: UpdateUserDTO = { updateInfo: '0' };
+          const resetUpdate: UpdateUserDTO = {
+            updateInfo: '0',
+            phone: '',
+            question: '',
+            answer: '',
+          };
           await this.userService.update(username, resetUpdate);
           break;
         default:

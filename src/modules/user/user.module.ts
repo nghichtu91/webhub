@@ -6,9 +6,21 @@ import { UserController, AdminController } from './controllers';
 import { UserSubscriber } from './subscribers';
 import { IsUserAlreadyExistConstraint } from './validators/IsUserAlreadyExist';
 import { UserPlayTimeModule } from './playtime.module';
+import { WinstonModule } from 'nest-winston';
+import * as winston from 'winston';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserEntity]), UserPlayTimeModule],
+  imports: [
+    WinstonModule.forRoot({
+      transports: [
+        new winston.transports.File({
+          filename: 'user.log',
+        }),
+      ],
+    }),
+    TypeOrmModule.forFeature([UserEntity]),
+    UserPlayTimeModule,
+  ],
   providers: [IsUserAlreadyExistConstraint, UserService, UserSubscriber],
   controllers: [UserController, AdminController],
   exports: [UserService],
