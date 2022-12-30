@@ -4,14 +4,14 @@ import * as dotenv from 'dotenv';
 const NODEENV = process.env.NODE_ENV || 'development';
 
 // setup env
-// if (NODEENV === 'production') {
-dotenv.config({ path: path.resolve(process.cwd(), '.env'), override: true });
-// } else {
-//   dotenv.config({
-//     path: path.resolve(process.cwd(), `.env.${NODEENV}`),
-//     override: true,
-//   });
-// }
+if (NODEENV === 'production') {
+  dotenv.config({ path: path.resolve(process.cwd(), '.env'), override: true });
+} else {
+  dotenv.config({
+    path: path.resolve(process.cwd(), `.env.${NODEENV}`),
+    override: true,
+  });
+}
 
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
