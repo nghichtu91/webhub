@@ -44,9 +44,9 @@ async function bootstrap() {
     ],
   });
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    // logger: WinstonModule.createLogger({
-    //   instance,
-    // }),
+    logger: WinstonModule.createLogger({
+      instance,
+    }),
   });
 
   if (NODE_ENV === 'development') {

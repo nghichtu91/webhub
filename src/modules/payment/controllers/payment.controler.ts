@@ -31,7 +31,13 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { JwtAuth, ReqUser, User, CreateMD5 } from '@shared';
+import {
+  JwtAuth,
+  ReqUser,
+  User,
+  CreateMD5,
+  AppPermissionBuilder,
+} from '@shared';
 import { PaymentCallbackDTO } from '../dtos/callback.dto';
 import { CreatePaymentDTO } from '../dtos/create.dto';
 import { PaymentService } from '../services';
@@ -41,6 +47,7 @@ import { AtmCallbackDTO, ISearchPaymentParams } from '../dtos';
 import { PaymentEntity } from '../entities';
 import { TelegramService } from 'nestjs-telegram';
 import dayjs from 'dayjs';
+import { InjectRolesBuilder, RolesBuilder } from 'nest-access-control';
 
 interface IPageReponse<T> {
   pageNum: number;
@@ -59,7 +66,24 @@ export class PaymentController {
     private readonly paymentService: PaymentService,
     private readonly userService: UserService,
     private readonly telegramSevice: TelegramService,
+    @InjectRolesBuilder()
+    private readonly rolesBuilder: RolesBuilder,
   ) {}
+
+  private pemission(currentUser: ReqUser) {
+    return new AppPermissionBuilder()
+      .setRolesBuilder(this.rolesBuilder)
+      .setRequestUser(currentUser)
+      .setAction('read')
+      .setAction('create')
+      .setAction('update')
+      .setAction('delete')
+      .setResourceName(AppResources.ADMIN)
+      .setCreatorId(currentUser.id)
+      .build()
+      .grant();
+  }
+
   /**
    * @description tính số xu được cộng vào tài khoản.
    * @param price
@@ -127,7 +151,7 @@ export class PaymentController {
     summary: 'Danh sách lịch sử nạp',
   })
   async adminHistories(
-    // @Param('username') username: string,
+    @User() currentUser: ReqUser,
     @Query('paged') paged: number,
     @Query('limit') limit = 12,
     @Query('keyword') keyword: string,
@@ -135,6 +159,9 @@ export class PaymentController {
     @Query('form') form: string,
     @Query('status') status: number,
   ) {
+    if (!this.pemission(currentUser).granted) {
+      throw new HttpException(`Không có quyền truy cập`, HttpStatus.FORBIDDEN);
+    }
     const f = form ? dayjs(form).format('YYYY-MM-DDTHH:mm:ss') : undefined;
     const t = to ? dayjs(to).format('YYYY-MM-DDTHH:mm:ss') : undefined;
 
