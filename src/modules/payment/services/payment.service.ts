@@ -1,17 +1,19 @@
-import { GATEWAY_URL, PaymentStatus } from '@config';
+import { CardTypes, GATEWAY_URL } from '@config';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AxiosResponse } from 'axios';
 import { Observable } from 'rxjs';
-import { Repository } from 'typeorm';
-import { IPaymentResponse, IPaymentResponseB, PaymentModel } from '../dtos';
+import { Repository, Between, Like, In } from 'typeorm';
+import { IPaymentResponseB, ISearchPaymentParams, PaymentModel } from '../dtos';
 import { CreatePaymentDTO } from '../dtos/create.dto';
 import { IPaymentUpdateDTO } from '../dtos/update.dto';
 import { PaymentEntity } from '../entities';
 
 interface IPaymentService {
   checkCardMobi?: any;
+  list(paged: number, filters: ISearchPaymentParams): any;
+  total(filter: ISearchPaymentParams): Promise<number>;
 }
 
 @Injectable()
@@ -65,6 +67,11 @@ export class PaymentService implements IPaymentService {
     return await this.paymentRepo.count({
       where: {
         userName: userName,
+        cardType: In([
+          CardTypes.MOBIFONE,
+          CardTypes.VIETTEL,
+          CardTypes.VINAPHONE,
+        ]),
       },
     });
   }
@@ -74,15 +81,23 @@ export class PaymentService implements IPaymentService {
     paged = 1,
     pageSize = 12,
   ): Promise<PaymentEntity[]> {
+    // != 'ATM' OR cardtype !='atm'
     const sql = `SELECT coin as coin, id, status, cardpin as cardPin, gateway_api as gateway, cardtype as cardType, content as comment, cardvalue as cardValue, cardseri as cardSeri FROM (
       SELECT ROW_NUMBER() OVER(ORDER BY id DESC) AS Numero,
-             * FROM payment_card_log WHERE username =@2 AND (cardtype != 'ATM' OR cardtype !='atm')
+             * FROM payment_card_log WHERE username =@2 AND cardtype IN (@3, @4, @5)
         ) AS TBL
 WHERE Numero BETWEEN ((@0 - 1) * @1 + 1) AND (@0 * @1) 
 ORDER BY id DESC`;
 
     return this.paymentRepo
-      .query(sql, [paged, pageSize, userName])
+      .query(sql, [
+        paged,
+        pageSize,
+        userName,
+        CardTypes.MOBIFONE,
+        CardTypes.VIETTEL,
+        CardTypes.VINAPHONE,
+      ])
       .then((s: PaymentModel[]) =>
         s.map((c) => {
           return this.paymentRepo.create(c);
@@ -132,5 +147,82 @@ ORDER BY id DESC`;
       .andWhere('cast(p.verifytime as date) = cast(getdate() as date)')
       .getRawOne<{ total: number }>();
     return total || 0;
+  }
+
+  async list(
+    paged = 1,
+    filter: ISearchPaymentParams,
+  ): Promise<PaymentEntity[]> {
+    const { limit = 12, status, keyword = '', form, to } = filter;
+    let subSql = `SELECT ROW_NUMBER() OVER(ORDER BY createtime DESC) AS Numero, * FROM payment_card_log`;
+
+    const wheres: string[] = [`cardtype IN (@6, @7, @8, @9)`];
+
+    if (status) {
+      wheres.push('status = @2');
+    }
+
+    if (keyword != '' && keyword) {
+      wheres.push('username LIKE @3');
+    }
+
+    if (form && to) {
+      wheres.push('createtime BETWEEN @4 AND @5');
+    }
+
+    if (wheres.length > 0) {
+      subSql = `${subSql} WHERE ${wheres.join(' AND ')}`;
+    }
+
+    const sql = `SELECT coin as coin, username as userName, createtime as createdAt, id, status, cardpin as cardPin, gateway_api as gateway, cardtype as cardType, content as comment, cardvalue as cardValue, cardseri as cardSeri FROM (${subSql}) AS TBL
+                WHERE Numero BETWEEN ((@0 - 1) * @1 + 1) AND (@0 * @1) 
+            ORDER BY id DESC`;
+
+    return this.paymentRepo
+      .query(sql, [
+        paged,
+        limit,
+        status,
+        keyword ? `%${keyword}%` : '',
+        form,
+        to,
+        CardTypes.MOBIFONE,
+        CardTypes.VIETTEL,
+        CardTypes.VINAPHONE,
+        CardTypes.ATM,
+      ])
+      .then((s: PaymentModel[]) =>
+        s.map((c) => {
+          return this.paymentRepo.create(c);
+        }),
+      );
+  }
+
+  async total(filter: ISearchPaymentParams): Promise<number> {
+    const { keyword = '', form, to, status } = filter;
+    const where: any = {
+      cardType: In([
+        CardTypes.MOBIFONE,
+        CardTypes.VIETTEL,
+        CardTypes.VINAPHONE,
+        CardTypes.ATM,
+      ]),
+    };
+
+    if (keyword !== '' && keyword) {
+      where.userName = Like(`%${keyword}%`);
+    }
+
+    if (status > 0) {
+      where.status = status;
+    }
+
+    if (form && to) {
+      where.createdAt = Between(form, to);
+    }
+
+    return await this.paymentRepo.count({
+      where: where,
+    });
   }
 }

@@ -1,10 +1,11 @@
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { UserEntity } from '../entities';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository, UpdateResult } from 'typeorm';
+import { Like, Repository, UpdateResult, Between } from 'typeorm';
 import { CreateUserDTO } from '../dtos/create.dto';
 import { ChangePassWordDTO, UpdateUserDTO } from '../dtos';
 import { createHash } from 'node:crypto';
+import dayjs from 'dayjs';
 
 @Injectable()
 export class UserService {
@@ -136,40 +137,54 @@ export class UserService {
     }
   }
 
-  getCount(keyword = '') {
-    let sql = {};
+  getCount(keyword = '', form?: string, to?: string) {
+    const where: any = {};
+
     if (keyword !== '') {
-      sql = {
-        where: { userName: Like(`%${keyword}%`) },
-      };
+      where.userName = Like(`%${keyword}%`);
     }
-    return this.userRepository.count(sql);
+    if (form && to) {
+      where.createdAt = Between(form, to);
+    }
+    return this.userRepository.count({
+      where: where,
+    });
   }
 
   async getUsers(
     paged = 1,
     pageSize = 12,
     keyword = '',
+    form?: string,
+    to?: string,
   ): Promise<UserEntity[]> {
-    let sql = `SELECT * FROM (
-      SELECT ROW_NUMBER() OVER(ORDER BY nExtPoint1 DESC) AS Numero,
-             iid as id, cQuestion as question, cAnswer as answer, cAccName as userName, cPhone as phone, cPasswordNoEncrypt as passwordNoEncrypt, cSecPasswordNoEncrypt as secPasswordNoEncrypt, nExtPoint1 as point1, dRegDate as createdAt, iClientID as iClientID, nExtPoint as point , cUpdateInfo as updateInfo FROM Account_Info
-        ) AS TBL
-WHERE Numero BETWEEN ((@0 - 1) * @1 + 1) AND (@0 * @1) 
-ORDER BY point1 DESC`;
+    let sqlf = `SELECT ROW_NUMBER() OVER(ORDER BY nExtPoint1 DESC) AS Numero,
+    iid as id, cQuestion as question, cAnswer as answer, cAccName as userName, cPhone as phone, cPasswordNoEncrypt as passwordNoEncrypt, cSecPasswordNoEncrypt as secPasswordNoEncrypt, nExtPoint1 as point1, dRegDate as createdAt, cUpdateInfo as updateInfo FROM Account_Info
+    `;
+    const params: string[] = [];
+
     if (keyword != '') {
-      sql = `SELECT * FROM (
-          SELECT ROW_NUMBER() OVER(ORDER BY nExtPoint1 DESC) AS Numero,
-                 iid as id, cQuestion as question, cAnswer as answer, cAccName as userName, cPhone as phone, cPasswordNoEncrypt as passwordNoEncrypt, cSecPasswordNoEncrypt as secPasswordNoEncrypt, nExtPoint1 as point1, dRegDate as createdAt, cUpdateInfo as updateInfo FROM Account_Info
-                 WHERE cAccName LIKE @2
-            ) AS TBL
+      params.push('cAccName LIKE @2');
+    }
+
+    if (form && to) {
+      params.push('dRegDate BETWEEN @3 AND @4');
+    }
+
+    if (params.length > 0) {
+      sqlf = `${sqlf} WHERE ${params.join(' AND ')}`;
+    }
+
+    const sql = `SELECT * FROM (${sqlf}) AS TBL
     WHERE Numero BETWEEN ((@0 - 1) * @1 + 1) AND (@0 * @1)
     ORDER BY point1 DESC`;
-    }
+
     const s = await this.userRepository.query(sql, [
       paged,
       pageSize,
-      `%${keyword}%`,
+      keyword ? `%${keyword}%` : '',
+      form,
+      to,
     ]);
     return s.map((c: any) => {
       return this.userRepository.create(c);

@@ -37,9 +37,10 @@ import { CreatePaymentDTO } from '../dtos/create.dto';
 import { PaymentService } from '../services';
 import { firstValueFrom } from 'rxjs';
 import { UserService } from '@modules/user/services';
-import { AtmCallbackDTO } from '../dtos';
+import { AtmCallbackDTO, ISearchPaymentParams } from '../dtos';
 import { PaymentEntity } from '../entities';
 import { TelegramService } from 'nestjs-telegram';
+import dayjs from 'dayjs';
 
 interface IPageReponse<T> {
   pageNum: number;
@@ -106,6 +107,47 @@ export class PaymentController {
       username,
       paged,
     );
+
+    const vv: IPageReponse<PaymentEntity> = {
+      pageNum: paged,
+      pageSize: 12,
+      total: total,
+      data: payments,
+    };
+    return vv;
+  }
+
+  @Get('admin/histories')
+  @JwtAuth({
+    resource: AppResources.USER,
+    action: 'read',
+    possession: 'any',
+  })
+  @ApiOperation({
+    summary: 'Danh sách lịch sử nạp',
+  })
+  async adminHistories(
+    // @Param('username') username: string,
+    @Query('paged') paged: number,
+    @Query('limit') limit = 12,
+    @Query('keyword') keyword: string,
+    @Query('to') to: string,
+    @Query('form') form: string,
+    @Query('status') status: number,
+  ) {
+    const f = form ? dayjs(form).format('YYYY-MM-DDTHH:mm:ss') : undefined;
+    const t = to ? dayjs(to).format('YYYY-MM-DDTHH:mm:ss') : undefined;
+
+    const filters: ISearchPaymentParams = {
+      form: f,
+      to: t,
+      keyword,
+      limit,
+      status,
+    };
+
+    const total = await this.paymentService.total(filters);
+    const payments = await this.paymentService.list(paged, filters);
 
     const vv: IPageReponse<PaymentEntity> = {
       pageNum: paged,

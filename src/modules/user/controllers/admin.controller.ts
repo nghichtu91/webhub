@@ -23,6 +23,7 @@ import { IUpdateUserDTO, UpdateUserDTO } from '../dtos';
 import { AppResources } from '@config';
 import { InjectRolesBuilder, RolesBuilder } from 'nest-access-control';
 import { PaymentService } from '@modules/payment/services';
+import dayjs from 'dayjs';
 
 @Controller('admin')
 @ApiTags('Admin')
@@ -61,19 +62,25 @@ export class AdminController {
   })
   @ApiQuery({ name: 'paged', description: 'Trang hiện tại' })
   @ApiQuery({ name: 'limit', description: 'Số item trong 1 trang' })
+  @ApiQuery({ name: 'keyword', description: 'Tài khoản cần tìm' })
   @Get('users')
   async getUsers(
     @User() currentUser: ReqUser,
     @Query('paged') paged: number,
     @Query('limit') limit = 12,
     @Query('keyword') keyword: string,
+    @Query('to') to: string,
+    @Query('form') form: string,
   ) {
     if (!this.pemission(currentUser).granted) {
       throw new HttpException(`Không có quyền truy cập`, HttpStatus.FORBIDDEN);
     }
-    const count = await this.userService.getCount(keyword);
-    const data = await this.userService.getUsers(paged, limit, keyword);
 
+    const f = form ? dayjs(form).format('YYYY-MM-DDTHH:mm:ss') : undefined;
+    const t = to ? dayjs(to).format('YYYY-MM-DDTHH:mm:ss') : undefined;
+
+    const count = await this.userService.getCount(keyword, f, t);
+    const data = await this.userService.getUsers(paged, limit, keyword, f, t);
     return {
       pageNum: paged,
       total: count,
