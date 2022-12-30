@@ -64,14 +64,14 @@ export class UserController {
       throw new HttpException(``, HttpStatusCode.Forbidden);
     }
     const userEntity = await this.userService.getUser(currentUser.username);
-    const phone = userEntity.phone || '';
+    const phone = userEntity?.phone;
     const reponse: IUserModel = {
       ...userEntity,
       roles:
         userEntity.userName === ADMIN_USER
           ? [AppRoles.ADMIN]
           : [AppRoles.GUEST],
-      phone: `******${phone.substring(phone.length - 3)}`,
+      phone: phone ? `******${phone.substring(phone.length - 3)}` : null,
     };
     return permission.filter(reponse);
   }
