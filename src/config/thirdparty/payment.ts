@@ -1,9 +1,24 @@
+import {
+  CARD_VALUE_EIGHT,
+  CARD_VALUE_FIVE,
+  CARD_VALUE_FOUR,
+  CARD_VALUE_NINE,
+  CARD_VALUE_ONE,
+  CARD_VALUE_SECOND,
+  CARD_VALUE_SEVEND,
+  CARD_VALUE_SIX,
+  CARD_VALUE_THIRD,
+  PARTNERID,
+  PARTNERKEY,
+} from '@config/application';
+
 export enum CardTypes {
   VIETTEL = 'VIETTEL',
   VINAPHONE = 'VINAPHONE',
   MOBIFONE = 'MOBIFONE',
   ATM = 'ATM',
 }
+
 export enum Gateways {
   AMT = 'atm',
   MOBI_CARD = 'mobi',
@@ -15,21 +30,21 @@ export enum Commands {
 }
 
 export const CardPriceList = {
-  10000: 20,
-  20000: 40,
-  30000: 60,
-  50000: 100,
-  100000: 200,
-  200000: 400,
-  300000: 600,
-  500000: 1000,
-  1000000: 2000,
+  10000: CARD_VALUE_ONE,
+  20000: CARD_VALUE_SECOND,
+  30000: CARD_VALUE_THIRD,
+  50000: CARD_VALUE_FOUR,
+  100000: CARD_VALUE_FIVE,
+  200000: CARD_VALUE_SIX,
+  300000: CARD_VALUE_SEVEND,
+  500000: CARD_VALUE_EIGHT,
+  1000000: CARD_VALUE_NINE,
 };
 
 export const Cardbonus = +process.env.CARD_BONUS || 0; // tính %;
 export const GATEWAY_URL = 'http://naptudong.com/chargingws/v2';
-export const PARTNER_ID = '6471455261';
-export const PARTNER_KEY = '486b5afa44dc72a2c8cd991bc7f2a44e';
+export const PARTNER_ID = PARTNERID;
+export const PARTNER_KEY = PARTNERKEY;
 
 /**
  * 

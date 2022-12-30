@@ -11,6 +11,9 @@ import {
   AppResources,
   BOT_CHAT_ID,
   CardTypes,
+  ATM_VALUE_ONE,
+  ATM_VALUE_SECOND,
+  ATM_VALUE_THIRD,
 } from '@config';
 import {
   Injectable,
@@ -102,13 +105,13 @@ export class PaymentController {
   getCoinForAtm(price: number) {
     let bonus = 1;
     if (price < 1100000) {
-      bonus = 1.1;
+      bonus = ATM_VALUE_ONE;
     }
     if (price >= 1100000 && price < 2000000) {
-      bonus = 1.15;
+      bonus = ATM_VALUE_SECOND;
     }
     if (price >= 2000000 && price <= 20000000) {
-      bonus = 1.2;
+      bonus = ATM_VALUE_THIRD;
     }
     return Math.floor((price / ATM_RATE) * bonus);
   }
