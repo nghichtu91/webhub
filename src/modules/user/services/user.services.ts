@@ -67,6 +67,7 @@ export class UserService {
         'point',
         'iClientID',
         'createdAt',
+        'email',
       ],
       where: {
         userName: userName,
@@ -159,7 +160,7 @@ export class UserService {
     to?: string,
   ): Promise<UserEntity[]> {
     let sqlf = `SELECT ROW_NUMBER() OVER(ORDER BY nExtPoint1 DESC) AS Numero,
-    iid as id, cQuestion as question, cAnswer as answer, cAccName as userName, cPhone as phone, cPasswordNoEncrypt as passwordNoEncrypt, cSecPasswordNoEncrypt as secPasswordNoEncrypt, nExtPoint as point, nExtPoint1 as point1, dRegDate as createdAt, cUpdateInfo as updateInfo FROM Account_Info
+    iid as id, cQuestion as question, cEMail as email, cAnswer as answer, cAccName as userName, cPhone as phone, cPasswordNoEncrypt as passwordNoEncrypt, cSecPasswordNoEncrypt as secPasswordNoEncrypt, nExtPoint as point, nExtPoint1 as point1, dRegDate as createdAt, cUpdateInfo as updateInfo FROM Account_Info
     `;
     const params: string[] = [];
 

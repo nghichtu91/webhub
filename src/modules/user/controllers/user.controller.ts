@@ -65,6 +65,8 @@ export class UserController {
     }
     const userEntity = await this.userService.getUser(currentUser.username);
     const phone = userEntity?.phone;
+    const email = userEntity?.email;
+    console.log(email);
     const reponse: IUserModel = {
       ...userEntity,
       roles:
@@ -72,6 +74,7 @@ export class UserController {
           ? [AppRoles.ADMIN]
           : [AppRoles.GUEST],
       phone: phone ? `******${phone.substring(phone.length - 3)}` : null,
+      email: email ? `***${email.substring(email.length - 3)}` : null,
     };
     return permission.filter(reponse);
   }
