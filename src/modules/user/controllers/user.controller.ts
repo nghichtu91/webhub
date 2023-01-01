@@ -66,7 +66,6 @@ export class UserController {
     const userEntity = await this.userService.getUser(currentUser.username);
     const phone = userEntity?.phone;
     const email = userEntity?.email;
-    console.log(email);
     const reponse: IUserModel = {
       ...userEntity,
       roles:
