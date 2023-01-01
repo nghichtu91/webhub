@@ -5,7 +5,6 @@ import { Like, Repository, UpdateResult, Between } from 'typeorm';
 import { CreateUserDTO } from '../dtos/create.dto';
 import { ChangePassWordDTO, UpdateUserDTO } from '../dtos';
 import { createHash } from 'node:crypto';
-import dayjs from 'dayjs';
 
 @Injectable()
 export class UserService {
