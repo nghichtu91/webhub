@@ -53,7 +53,11 @@ export class UserEntity extends BaseEntity implements IBaseModel<IUserModel> {
   hashPassword(): void {
     if (this.passWord) {
       this.passwordNoEncrypt = this.passWord;
-      this.passWord = createHash('md5').update(this.passWord).digest('hex');
+      this.passWord = createHash('md5')
+        .update(this.passWord)
+        .digest('hex')
+        .toString()
+        .toLocaleUpperCase();
     }
   }
 
@@ -188,14 +192,19 @@ export class UserEntity extends BaseEntity implements IBaseModel<IUserModel> {
       this.secPasswordNoEncrypt = this.passWordSecond;
       this.passWordSecond = createHash('md5')
         .update(this.passWordSecond)
-        .digest('hex');
+        .digest('hex')
+        .toString()
+        .toLocaleUpperCase();
     }
   }
 
   comparePassword(attempt: string): boolean {
     return (
-      createHash('md5').update(attempt).digest('hex').toString() ===
-      this.passWord
+      createHash('md5')
+        .update(attempt)
+        .digest('hex')
+        .toString()
+        .toLocaleUpperCase() === this.passWord
     );
   }
 

@@ -65,7 +65,8 @@ export class UserController {
     }
     const userEntity = await this.userService.getUser(currentUser.username);
     const phone = userEntity?.phone;
-    const email = userEntity?.email;
+    const email =
+      userEntity?.email === '0@gmail.com' ? undefined : userEntity?.email;
     const reponse: IUserModel = {
       ...userEntity,
       roles:
