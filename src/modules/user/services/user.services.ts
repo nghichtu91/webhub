@@ -67,6 +67,7 @@ export class UserService {
         'point',
         'iClientID',
         'createdAt',
+        'email',
       ],
       where: {
         userName: userName,
