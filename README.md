@@ -29,6 +29,9 @@
 ## Installation
 
 ```bash
+git clone https://github.com/nghichtu91/webhub.git
+cd webhub
+
 $ yarn install
 $ yarn global add pm2
 ```
