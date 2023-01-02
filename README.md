@@ -29,45 +29,35 @@
 ## Installation
 
 ```bash
-$ npm install
+$ yarn install
+$ yarn global add pm2
 ```
 
 ## Running the app
 
 ```bash
 # development
-$ npm run start
+$ yarn start
 
 # watch mode
-$ npm run start:dev
+$ yarn start:dev
 
 # production mode
-$ npm run start:prod
+$ yarn start:prod
 ```
 
-## Test
+## Running the app on linux
 
 ```bash
-# unit tests
-$ npm run test
+$ yarn build
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+$ pm2 start ecosystem.config.js -- env production
 ```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
 
 ## Stay in touch
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- Author - [ThanhLe](https://www.facebook.com/ThanhNaruto208)
+- Website -
+- Twitter -
 
 ## License
-
-Nest is [MIT licensed](LICENSE).
