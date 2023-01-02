@@ -33,6 +33,12 @@ $ yarn install
 $ yarn global add pm2
 ```
 
+## Running the app on linux
+
+```
+edit in .env file
+```
+
 ## Running the app
 
 ```bash
