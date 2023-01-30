@@ -229,7 +229,12 @@ export class UserEntity extends BaseEntity implements IBaseModel<IUserModel> {
       this.phone !== params.phone ||
       this.question !== params.question ||
       this.answer !== params.answer ||
-      this.secPasswordNoEncrypt !== params.passWordSecond
+      this.passWordSecond !==
+        createHash('md5')
+          .update(params.passWordSecond)
+          .digest('hex')
+          .toString()
+          .toLocaleUpperCase()
     );
   }
 
