@@ -229,7 +229,7 @@ export class UserEntity extends BaseEntity implements IBaseModel<IUserModel> {
   }
 
   checkAnswer(params: IUpdateUserDTO) {
-    return this.answer.toLowerCase() !== params.answer.toLowerCase();
+    return this.answer?.toLowerCase() !== params?.answer?.toLowerCase();
   }
 
   checkPassWordSecond(params: IUpdateUserDTO) {
