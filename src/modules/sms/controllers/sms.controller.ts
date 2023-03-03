@@ -139,6 +139,7 @@ export class SmsController {
         ?.toLowerCase()
         .split(SmsKeySub?.toLowerCase());
       const requestId = strs[1]?.trim();
+      console.log(SmsKeySub?.toLowerCase(), qu.sms);
       if (!requestId) {
         throw new Error('Không xác định được yêu cầu');
       }
