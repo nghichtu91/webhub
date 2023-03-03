@@ -118,6 +118,13 @@ export class SmsController {
   //     return '0|Có lỗi trong quá trình xử lý, vui lòng liên hệ gm.';
   //   }
   // }
+  converHexToText(
+    str:
+      | WithImplicitCoercion<string>
+      | { [Symbol.toPrimitive](hint: 'string'): string },
+  ) {
+    return Buffer.from(str, 'hex').toString('utf8');
+  }
 
   @Get('sms-callback')
   async getcallbacksms(@Query() qu: CallbackDTO) {
@@ -133,13 +140,10 @@ export class SmsController {
       //   ?.trim()
       //   ?.toLowerCase()
       //   .split(SmsKeySub?.toLowerCase());
-
-      const strs = qu.sms
-        ?.trim()
-        ?.toLowerCase()
-        .split(SmsKeySub?.toLowerCase());
+      const bnbnb = this.converHexToText(qu.sms);
+      const strs = bnbnb?.trim()?.toLowerCase().split(SmsKeySub?.toLowerCase());
       const requestId = strs[1]?.trim();
-      console.log('sms: ', qu.sms);
+
       if (!requestId) {
         throw new Error('Không xác định được yêu cầu');
       }
