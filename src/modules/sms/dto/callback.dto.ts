@@ -37,4 +37,22 @@ export class CallbackDTO implements ICallbackDTO {
   // @IsOptional()
   // @ApiProperty()
   // REMOTE_ADDR: string;
+
+  // sv1
+
+  @IsOptional()
+  @ApiProperty()
+  phone?: string;
+
+  @IsOptional()
+  @ApiProperty()
+  shortcode?: string;
+
+  @IsOptional()
+  @ApiProperty()
+  gateway?: string;
+
+  @IsOptional()
+  @ApiProperty()
+  sms?: string;
 }
