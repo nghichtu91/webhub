@@ -1,6 +1,5 @@
 import {
   SmsActions,
-  SmsKeyPrimary,
   SmsKeySub,
   SmsMsgFailed,
   SmsServiceNumber,
@@ -122,23 +121,39 @@ export class SmsController {
 
   @Get('sms-callback')
   async getcallbacksms(@Query() qu: CallbackDTO) {
-    this.logger.log(`${qu.mobile}`, 'sms-callback');
+    this.logger.log(`${qu.phone}`, 'sms-callback');
+
+    if (!qu.sms) {
+      this.logger.error('No sms', 'sms-callback');
+      return false;
+    }
+
     try {
-      const strs = qu.info
+      // const strs = qu.info
+      //   ?.trim()
+      //   ?.toLowerCase()
+      //   .split(SmsKeySub?.toLowerCase());
+
+      const strs = qu.sms
         ?.trim()
         ?.toLowerCase()
         .split(SmsKeySub?.toLowerCase());
-      this.logger.log(strs[1].trim() as unknown as number);
+      const requestId = strs[1]?.trim();
+      if (!requestId) {
+        throw new Error('Không xác định được yêu cầu');
+      }
+
       const smsEntity = await this.smsService.findById(
-        strs[1] as unknown as number,
+        requestId as unknown as number,
       );
+
       if (!smsEntity) {
-        return `0|${SmsMsgNotFound}`;
+        return `${SmsMsgNotFound}`;
       }
 
       if (!smsEntity.validTime()) {
         this.smsService.update(smsEntity.id, { status: 2 });
-        return `0|${SmsMsgExpired}`;
+        return `${SmsMsgExpired}`;
       }
 
       const userEntitys = await this.userService.findByUserName(
@@ -147,8 +162,8 @@ export class SmsController {
 
       const userEntity = userEntitys[0];
 
-      if (userEntity.phone !== `0${qu.mobile.substring(2)}`) {
-        return `0|${SmsMsgPhoneNotMatch}`;
+      if (userEntity.phone !== `0${qu?.phone?.substring(2)}`) {
+        return `${SmsMsgPhoneNotMatch}`;
       }
 
       let userUpdate: IUpdateUserDTO = {};
@@ -195,11 +210,11 @@ export class SmsController {
       await this.userService.update(smsEntity.userName, userUpdate);
       this.smsService.update(smsEntity.id, { status: 1 });
 
-      return `0|${msg}`;
+      return `${msg}`;
     } catch (e: unknown) {
       const errors = e as Error;
       this.logger.error(errors.message, errors.name);
-      return `0|${SmsMsgFailed}`;
+      return `${SmsMsgFailed}`;
     }
   }
 
@@ -230,7 +245,7 @@ export class SmsController {
         `${currentUser.username} tạo yêu xử lý bằng sms thành công!`,
       );
       return {
-        message: `${SmsKeyPrimary} ${SmsKeySub} ${smsCreated.id} gửi ${SmsServiceNumber}.`, // code send sms
+        message: `${SmsKeySub} ${smsCreated.id} gửi ${SmsServiceNumber}.`, // code send sms
       };
     } catch (e: unknown) {
       const errors = e as Error;
