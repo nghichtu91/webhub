@@ -95,8 +95,9 @@ export class JwtAuthController {
     try {
       await this.authService.forgotPassword(body);
     } catch (e: unknown) {
+      const error = e as Error;
       throw new HttpException(
-        `Thông tin cung cấp không đúng.`,
+        error.message || `Thông tin cung cấp không đúng.`,
         HttpStatus.BAD_GATEWAY,
       );
     }
