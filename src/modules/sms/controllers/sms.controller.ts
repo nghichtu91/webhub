@@ -174,6 +174,7 @@ export class SmsController {
       let userUpdate: IUpdateUserDTO = {};
       let msg = '';
       switch (smsEntity.action) {
+        case 'forgotpass':
         case 'phonechange':
           msg = SmsMsgChangePhoneSuccessfully.replace('%s', smsEntity.info1);
           userUpdate = {
@@ -256,6 +257,34 @@ export class SmsController {
       const errors = e as Error;
       this.logger.log(
         `${currentUser.username} Tạo yêu xử lý bằng sms thất bại. ${errors.message}`,
+        errors.name,
+      );
+      throw new HttpException(``, HttpStatus.SERVICE_UNAVAILABLE);
+    }
+  }
+
+  @Post('sms-request-password-forgot')
+  @ApiOperation({ summary: 'Tạo yêu thay đổi thông bằng sms' })
+  @ApiOkResponse()
+  @ApiResponse({
+    status: HttpStatus.SERVICE_UNAVAILABLE,
+    description: 'Server error',
+  })
+  async smsRequestForgot(@Body() body: CreateSmsParams) {
+    const data = new CreateDTO(body);
+    data.action = 'forgotpass';
+    data.userName = data.info2;
+
+    try {
+      const smsCreated = await this.smsService.add(data);
+      this.logger.log(`${data.userName} tạo yêu xử lý bằng sms thành công!`);
+      return {
+        message: `${SmsKeySub} ${smsCreated.id} gửi ${SmsServiceNumber}.`, // code send sms
+      };
+    } catch (e: unknown) {
+      const errors = e as Error;
+      this.logger.log(
+        `${data.userName} Tạo yêu xử lý bằng sms thất bại. ${errors.message}`,
         errors.name,
       );
       throw new HttpException(``, HttpStatus.SERVICE_UNAVAILABLE);
