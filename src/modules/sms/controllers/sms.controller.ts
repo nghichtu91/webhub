@@ -174,13 +174,13 @@ export class SmsController {
       let userUpdate: IUpdateUserDTO = {};
       let msg = '';
       switch (smsEntity.action) {
-        case 'forgotpass':
         case 'phonechange':
           msg = SmsMsgChangePhoneSuccessfully.replace('%s', smsEntity.info1);
           userUpdate = {
             phone: smsEntity.info1,
           };
           break;
+        case 'forgotpass':
         case 'passwordchange':
           msg = SmsMsgChangePassWordSuccessfully.replace('%s', smsEntity.info1);
           userUpdate = {
