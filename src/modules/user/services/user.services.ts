@@ -164,7 +164,7 @@ export class UserService {
     const params: string[] = [];
 
     if (keyword != '') {
-      params.push('cAccName LIKE @2');
+      params.push('cAccName LIKE @2 or cPhone LIKE @2 ');
     }
 
     if (form && to) {
