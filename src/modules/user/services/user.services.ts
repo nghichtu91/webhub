@@ -137,18 +137,25 @@ export class UserService {
     }
   }
 
-  getCount(keyword = '', form?: string, to?: string) {
+  async getCount(keyword = '', form?: string, to?: string) {
     const where: any = {};
+    const orWhere: any = {};
+    const gh = this.userRepository.createQueryBuilder();
 
     if (keyword !== '') {
       where.userName = Like(`%${keyword}%`);
+      orWhere.phone = Like(`%${keyword}%`);
     }
     if (form && to) {
       where.createdAt = Between(form, to);
     }
-    return this.userRepository.count({
-      where: where,
-    });
+    gh.andWhere(where).orWhere(orWhere);
+    // console.log(await gh.getCount());
+    return await gh.getCount();
+
+    // this.userRepository.count({
+    //   where: where,
+    // });
   }
 
   async getUsers(
