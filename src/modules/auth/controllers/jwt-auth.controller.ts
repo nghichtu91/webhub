@@ -10,6 +10,7 @@ import {
   Res,
   HttpException,
   Ip,
+  Logger,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -77,6 +78,7 @@ export class JwtAuthController {
   @ApiBody({ type: CreateUserDTO })
   register(@Ip() ip: any, @Body() data: CreateUserDTO) {
     data.ip = ip;
+    Logger.log('ip', ip);
     return this.authService.jwtRegister(data);
   }
 
