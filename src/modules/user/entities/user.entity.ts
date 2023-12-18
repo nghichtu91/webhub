@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { createHash } from "node:crypto";
 import {
   BaseEntity,
   Column,
@@ -8,43 +8,43 @@ import {
   PrimaryColumn,
   Entity,
   PrimaryGeneratedColumn,
-} from 'typeorm';
-import { IUpdateUserDTO, IUserModel } from '../dtos';
-import { IBaseModel } from '@shared';
-import { ForgotPassworDTO } from '@modules/auth/dtos';
+} from "typeorm";
+import { IUpdateUserDTO, IUserModel } from "../dtos";
+import { IBaseModel } from "@shared";
+import { ForgotPassworDTO } from "@modules/auth/dtos";
 
-@Entity({ name: 'Account_info' })
+@Entity({ name: "Account_info" })
 export class UserEntity extends BaseEntity implements IBaseModel<IUserModel> {
-  @PrimaryGeneratedColumn('increment')
-  @PrimaryColumn({ name: 'iid', type: 'bigint' })
+  // @PrimaryGeneratedColumn("increment")
+  @Column({ name: "iid", type: "bigint", generated: true })
   id: string;
 
-  @Column({
-    type: 'varchar',
-    name: 'cAccName',
+  @PrimaryColumn({
+    type: "varchar",
+    name: "cAccName",
   })
   userName: string;
 
   @Column({
-    type: 'varchar',
-    name: 'cEMail',
+    type: "varchar",
+    name: "cEMail",
     length: 250,
     nullable: true,
   })
   email: string;
 
   @Column({
-    type: 'varchar',
-    name: 'cPhone',
+    type: "varchar",
+    name: "cPhone",
     length: 50,
     nullable: true,
   })
   phone?: string;
 
   @Column({
-    name: 'cPassWord',
+    name: "cPassWord",
     length: 32,
-    type: 'varchar',
+    type: "varchar",
   })
   passWord: string;
 
@@ -53,125 +53,125 @@ export class UserEntity extends BaseEntity implements IBaseModel<IUserModel> {
   hashPassword(): void {
     if (this.passWord) {
       this.passwordNoEncrypt = this.passWord;
-      this.passWord = createHash('md5')
+      this.passWord = createHash("md5")
         .update(this.passWord)
-        .digest('hex')
+        .digest("hex")
         .toString()
         .toLocaleUpperCase();
     }
   }
 
   @Column({
-    name: 'cSecPassWord',
-    type: 'varchar',
+    name: "cSecPassWord",
+    type: "varchar",
   })
   passWordSecond: string;
 
-  @Column({ name: 'iClientID', type: 'bigint', insert: false })
+  @Column({ name: "iClientID", type: "bigint", insert: false })
   iClientID?: number;
 
   @CreateDateColumn({
-    name: 'dRegDate',
+    name: "dRegDate",
     nullable: true,
-    type: 'datetime',
+    type: "datetime",
   })
   createdAt?: Date;
 
   @Column({
-    name: 'cPasswordNoEncrypt',
+    name: "cPasswordNoEncrypt",
     length: 50,
-    type: 'varchar',
+    type: "varchar",
   })
   passwordNoEncrypt?: string;
 
   @Column({
-    name: 'cSecPasswordNoEncrypt',
+    name: "cSecPasswordNoEncrypt",
     length: 50,
-    type: 'varchar',
+    type: "varchar",
   })
   secPasswordNoEncrypt?: string;
 
   // point
   @Column({
-    name: 'nExtPoint',
-    type: 'smallint',
+    name: "nExtPoint",
+    type: "smallint",
   })
   point: number;
 
   @Column({
-    type: 'smallint',
-    name: 'nExtPoint1',
+    type: "smallint",
+    name: "nExtPoint1",
     default: 1,
   })
   point1: number;
 
   @Column({
-    type: 'smallint',
-    name: 'nExtPoint2',
+    type: "smallint",
+    name: "nExtPoint2",
     default: 0,
   })
   point2: number;
 
   @Column({
-    type: 'smallint',
-    name: 'nExtPoint3',
+    type: "smallint",
+    name: "nExtPoint3",
     default: 0,
     select: false,
   })
   point3: number;
 
   @Column({
-    type: 'smallint',
-    name: 'nExtPoint4',
+    type: "smallint",
+    name: "nExtPoint4",
     default: 0,
     select: false,
   })
   point4: number;
 
   @Column({
-    type: 'smallint',
-    name: 'nExtPoint5',
+    type: "smallint",
+    name: "nExtPoint5",
     default: 0,
     select: false,
   })
   point5: number;
 
   @Column({
-    type: 'smallint',
-    name: 'nExtPoint6',
+    type: "smallint",
+    name: "nExtPoint6",
     default: 0,
     select: false,
   })
   point6: number;
 
   @Column({
-    type: 'smallint',
-    name: 'nExtPoint7',
+    type: "smallint",
+    name: "nExtPoint7",
     default: 0,
     select: false,
   })
   point7: number;
 
   @Column({
-    type: 'varchar',
-    name: 'cQuestion',
+    type: "varchar",
+    name: "cQuestion",
     default: 0,
   })
   question?: string;
   @Column({
-    type: 'varchar',
-    name: 'cAnswer',
+    type: "varchar",
+    name: "cAnswer",
     default: 0,
   })
   answer?: string;
 
   @Column({
-    type: 'nchar',
-    name: 'cUpdateInfo',
+    type: "nchar",
+    name: "cUpdateInfo",
   })
   updateInfo?: string;
 
-  @Column({ type: 'varchar', name: 'cIpAddress' })
+  @Column({ type: "varchar", name: "cIpAddress" })
   ip?: string;
 
   @BeforeInsert()
@@ -182,7 +182,7 @@ export class UserEntity extends BaseEntity implements IBaseModel<IUserModel> {
   @BeforeUpdate()
   beforeUpdateInfo(): void {
     if (this.passWordSecond && this.question) {
-      this.updateInfo = '1';
+      this.updateInfo = "1";
     }
   }
 
@@ -190,19 +190,19 @@ export class UserEntity extends BaseEntity implements IBaseModel<IUserModel> {
   hashPasswordSecond(): void {
     if (this.passWordSecond) {
       this.secPasswordNoEncrypt = this.passWordSecond;
-      this.passWordSecond = createHash('md5')
+      this.passWordSecond = createHash("md5")
         .update(this.passWordSecond)
-        .digest('hex')
-        .toString()
-        .toLocaleUpperCase();
+        .digest("hex")
+        .toString();
+      // .toLocaleUpperCase();
     }
   }
 
   comparePassword(attempt: string): boolean {
     return (
-      createHash('md5')
+      createHash("md5")
         .update(attempt)
-        .digest('hex')
+        .digest("hex")
         .toString()
         .toLocaleUpperCase() === this.passWord
     );
@@ -235,11 +235,8 @@ export class UserEntity extends BaseEntity implements IBaseModel<IUserModel> {
   checkPassWordSecond(params: IUpdateUserDTO) {
     return (
       this.passWordSecond !==
-      createHash('md5')
-        .update(params.passWordSecond)
-        .digest('hex')
-        .toString()
-        .toLocaleUpperCase()
+      createHash("md5").update(params.passWordSecond).digest("hex").toString()
+      //.toLocaleUpperCase()
     );
   }
 
@@ -254,9 +251,9 @@ export class UserEntity extends BaseEntity implements IBaseModel<IUserModel> {
       this.question !== params.question ||
       this.answer !== params.answer ||
       this.passWordSecond !==
-        createHash('md5')
+        createHash("md5")
           .update(params.passWordSecond)
-          .digest('hex')
+          .digest("hex")
           .toString()
           .toLocaleUpperCase()
     );
@@ -271,7 +268,7 @@ export class UserEntity extends BaseEntity implements IBaseModel<IUserModel> {
   }
 
   checkEmail(email?: string) {
-    if (!this.email || this.email === '0@gmail.com' || this.email === email) {
+    if (!this.email || this.email === "0@gmail.com" || this.email === email) {
       return true;
     }
     return false;

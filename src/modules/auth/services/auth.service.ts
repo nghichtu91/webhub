@@ -95,9 +95,9 @@ export class AuthService {
         question: data.question,
       };
 
-      if (user.checkPassWordSecond(datacheck)) {
-        throw new Error(`Mật khẩu cấp 2 không đúng.`);
-      }
+      //if (user.checkPassWordSecond(datacheck)) {
+        //throw new Error(`Mật khẩu cấp 2 không đúng.`);
+      //}
       if (user.checkPhone(datacheck)) {
         throw new Error(`Số điện thoại không đúng.`);
       }

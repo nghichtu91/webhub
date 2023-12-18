@@ -1,17 +1,17 @@
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { UserEntity } from '../entities';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository, UpdateResult, Between } from 'typeorm';
-import { CreateUserDTO } from '../dtos/create.dto';
-import { ChangePassWordDTO, UpdateUserDTO } from '../dtos';
-import { createHash } from 'node:crypto';
+import { HttpException, HttpStatus, Injectable, Logger } from "@nestjs/common";
+import { UserEntity } from "../entities";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Like, Repository, UpdateResult, Between } from "typeorm";
+import { CreateUserDTO } from "../dtos/create.dto";
+import { ChangePassWordDTO, UpdateUserDTO } from "../dtos";
+import { createHash } from "node:crypto";
 
 @Injectable()
 export class UserService {
   private loger = new Logger(UserService.name);
   constructor(
     @InjectRepository(UserEntity)
-    private userRepository: Repository<UserEntity>,
+    private userRepository: Repository<UserEntity>
   ) {}
 
   findByUserName(userName: string) {
@@ -48,9 +48,10 @@ export class UserService {
       // this.playtimeRepository.save(playtime);
       return inserted;
     } catch (err) {
+      console.log(err);
       throw new HttpException(
         `${err.detail}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
   }
@@ -58,15 +59,15 @@ export class UserService {
   async getUser(userName: string) {
     const users = await this.userRepository.find({
       select: [
-        'point1',
-        'id',
-        'userName',
-        'updateInfo',
-        'phone',
-        'point',
-        'iClientID',
-        'createdAt',
-        'email',
+        "point1",
+        "id",
+        "userName",
+        "updateInfo",
+        "phone",
+        "point",
+        "iClientID",
+        "createdAt",
+        "email",
       ],
       where: {
         userName: userName,
@@ -86,7 +87,7 @@ export class UserService {
       {
         userName,
       },
-      userDto,
+      userDto
     );
     return ff;
   }
@@ -101,14 +102,14 @@ export class UserService {
    */
   async changePassword(
     userName: string,
-    data: ChangePassWordDTO,
+    data: ChangePassWordDTO
   ): Promise<UpdateResult> {
-    const passwordMd5 = createHash('md5').update(data.passWord).digest('hex');
+    const passwordMd5 = createHash("md5").update(data.passWord).digest("hex");
     const updatePassword = this.userRepository.update(
       {
         userName: userName,
       },
-      { passWord: passwordMd5 },
+      { passWord: passwordMd5 }
     );
     return updatePassword;
   }
@@ -128,21 +129,21 @@ export class UserService {
         },
         {
           point1: () => `nExtPoint1 + ${money}`,
-        },
+        }
       );
       return adding;
     } catch (e) {
-      this.loger.error('[addMoney] có lỗi cộng xu.');
-      throw new Error('Có lỗi cộng xu');
+      this.loger.error("[addMoney] có lỗi cộng xu.");
+      throw new Error("Có lỗi cộng xu");
     }
   }
 
-  async getCount(keyword = '', form?: string, to?: string) {
+  async getCount(keyword = "", form?: string, to?: string) {
     const where: any = {};
     const orWhere: any = {};
     const gh = this.userRepository.createQueryBuilder();
 
-    if (keyword !== '') {
+    if (keyword !== "") {
       where.userName = Like(`%${keyword}%`);
       orWhere.phone = Like(`%${keyword}%`);
     }
@@ -161,25 +162,25 @@ export class UserService {
   async getUsers(
     paged = 1,
     pageSize = 12,
-    keyword = '',
+    keyword = "",
     form?: string,
-    to?: string,
+    to?: string
   ): Promise<UserEntity[]> {
     let sqlf = `SELECT ROW_NUMBER() OVER(ORDER BY nExtPoint1 DESC) AS Numero,
     iid as id, cQuestion as question, cEMail as email, cAnswer as answer, cAccName as userName, cPhone as phone, cPasswordNoEncrypt as passwordNoEncrypt, cSecPasswordNoEncrypt as secPasswordNoEncrypt, nExtPoint as point, nExtPoint1 as point1, dRegDate as createdAt, cUpdateInfo as updateInfo FROM Account_Info
     `;
     const params: string[] = [];
 
-    if (keyword != '') {
-      params.push('cAccName LIKE @2 or cPhone LIKE @2 ');
+    if (keyword != "") {
+      params.push("cAccName LIKE @2 or cPhone LIKE @2 ");
     }
 
     if (form && to) {
-      params.push('dRegDate BETWEEN @3 AND @4');
+      params.push("dRegDate BETWEEN @3 AND @4");
     }
 
     if (params.length > 0) {
-      sqlf = `${sqlf} WHERE ${params.join(' AND ')}`;
+      sqlf = `${sqlf} WHERE ${params.join(" AND ")}`;
     }
 
     const sql = `SELECT * FROM (${sqlf}) AS TBL
@@ -189,7 +190,7 @@ export class UserService {
     const s = await this.userRepository.query(sql, [
       paged,
       pageSize,
-      keyword ? `%${keyword}%` : '',
+      keyword ? `%${keyword}%` : "",
       form,
       to,
     ]);

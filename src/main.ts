@@ -1,11 +1,11 @@
-import path from 'path';
-import * as dotenv from 'dotenv';
+import path from "path";
+import * as dotenv from "dotenv";
 
-const NODEENV = process.env.NODE_ENV || 'development';
+const NODEENV = process.env.NODE_ENV || "development";
 
 // setup env
-if (NODEENV === 'production') {
-  dotenv.config({ path: path.resolve(process.cwd(), '.env'), override: true });
+if (NODEENV === "production") {
+  dotenv.config({ path: path.resolve(process.cwd(), ".env"), override: true });
 } else {
   dotenv.config({
     path: path.resolve(process.cwd(), `.env.${NODEENV}`),
@@ -13,29 +13,29 @@ if (NODEENV === 'production') {
   });
 }
 
-import { NestFactory } from '@nestjs/core';
-import { NestExpressApplication } from '@nestjs/platform-express';
-import { AppModule } from '@modules/app/app.module';
+import { NestFactory } from "@nestjs/core";
+import { NestExpressApplication } from "@nestjs/platform-express";
+import { AppModule } from "@modules/app/app.module";
 import {
   configSession,
   appGlobalConfig,
   devConfig,
   prodConfig,
-} from '@app/config';
-import { useContainer } from 'class-validator';
-import { Logger } from '@nestjs/common';
-import { PORT, LISTEN_ON, NODE_ENV } from './config';
-import winston, { createLogger, format } from 'winston';
+} from "@app/config";
+import { useContainer } from "class-validator";
+import { Logger } from "@nestjs/common";
+import { PORT, LISTEN_ON, NODE_ENV } from "./config";
+import winston, { createLogger, format } from "winston";
 import {
   utilities as nestWinstonModuleUtilities,
   WinstonModule,
-} from 'nest-winston';
+} from "nest-winston";
 
 const { combine, timestamp, label, printf } = format;
 
 const timezoned = () => {
-  return new Date().toLocaleString('en-US', {
-    timeZone: 'Asia/Ho_Chi_Minh',
+  return new Date().toLocaleString("en-US", {
+    timeZone: "Asia/Ho_Chi_Minh",
   });
 };
 
@@ -47,27 +47,27 @@ async function bootstrap() {
   const instance = createLogger({
     // options of Winston
     format: combine(
-      label({ label: 'jxhub' }),
+      label({ label: "jxhub" }),
       timestamp({
         format: timezoned,
       }),
-      myFormat,
+      myFormat
     ),
     transports: [
-      new winston.transports.File({ filename: 'error.log', level: 'error' }),
+      new winston.transports.File({ filename: "error.log", level: "error" }),
       new winston.transports.File({
-        filename: 'combined.log',
-        level: 'info',
+        filename: "combined.log",
+        level: "info",
       }),
       new winston.transports.File({
-        filename: 'gm.log',
-        level: 'warn',
+        filename: "gm.log",
+        level: "warn",
       }),
       new winston.transports.Console({
         format: winston.format.combine(
           winston.format.timestamp(),
           winston.format.ms(),
-          nestWinstonModuleUtilities.format.nestLike('jxhub'),
+          nestWinstonModuleUtilities.format.nestLike("jxhub")
         ),
       }),
     ],
@@ -78,7 +78,8 @@ async function bootstrap() {
     }),
   });
 
-  if (NODE_ENV === 'development') {
+  app.set("trust proxy", 1);
+  if (NODE_ENV === "development") {
     devConfig(app);
   } else {
     prodConfig(app);
@@ -105,7 +106,7 @@ async function bootstrap() {
   configSession(app);
 
   app.listen(PORT, LISTEN_ON, () => {
-    Logger.log(`Nest listening on http://${LISTEN_ON}:${PORT}`, 'Bootstrap');
+    Logger.log(`Nest listening on http://${LISTEN_ON}:${PORT}`, "Bootstrap");
   });
 }
 
