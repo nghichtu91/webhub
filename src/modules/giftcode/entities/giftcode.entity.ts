@@ -6,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  BeforeInsert,
 } from 'typeorm';
 import { IGiftcodeModel } from '../dtos/giftcode.model';
 import { IBaseModel } from '@shared';
@@ -23,7 +24,7 @@ export class GiftcodeEntity
   @Column({ type: 'varchar' })
   code: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   category: string;
 
   @Column({ type: 'int' })
@@ -35,7 +36,7 @@ export class GiftcodeEntity
   })
   createAt: Date;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int', default: 0 })
   times: number;
 
   @Column({ type: 'datetime' })
@@ -46,4 +47,9 @@ export class GiftcodeEntity
     type: "datetime",
   })
   updateAt: Date;
+
+  @BeforeInsert()
+  beforeInsert() {
+    this.createAt = new Date()
+  }
 }

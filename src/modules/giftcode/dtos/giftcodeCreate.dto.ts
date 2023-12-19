@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsOptional } from "class-validator";
+import { IsOptional, IsEmpty } from "class-validator";
 
-interface IGiftcodeCreateDto {
+export interface IGiftcodeCreateDto {
     code: string;
     value: number;
     times?: number;
@@ -27,8 +27,12 @@ export class GiftcodeCreateDto implements IGiftcodeCreateDto {
     times?: number;
 
     @IsOptional()
+    @IsEmpty()
     @ApiProperty({
-        nullable: true
+        type: Date, 
+        nullable: true,
+        required: false,
+        
     })
     expired?: Date;
 }

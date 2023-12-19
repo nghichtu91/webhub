@@ -1,8 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsOptional } from "class-validator";
 
-interface IGiftcodeUpdateDto {
-   
+export interface IGiftcodeUpdateDto {
     value: number;
     times?: number;
     expired?: Date;
