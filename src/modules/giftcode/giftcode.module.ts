@@ -6,6 +6,8 @@ import { GiftcodeEntity } from './entities/giftcode.entity';
 import { GiftcodeLogEnity } from './entities/giftcodelog.entity';
 import { GiftcodeControler } from './controllers/giftcode.controller';
 import { GiftcodeService } from './services/giftcode.service';
+import { GiftcodelogService } from './services/giftcodelog.service';
+import { UsersModule } from '@modules/user/user.module';
 
 @Module({
     imports: [
@@ -17,8 +19,9 @@ import { GiftcodeService } from './services/giftcode.service';
             ],
           }),
           TypeOrmModule.forFeature([GiftcodeEntity, GiftcodeLogEnity]),
+          UsersModule,
     ],
-    providers: [GiftcodeService],
+    providers: [GiftcodeService, GiftcodelogService],
     controllers: [GiftcodeControler]
 })
 export class GiftcodeModule {}

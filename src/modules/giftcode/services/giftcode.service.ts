@@ -11,6 +11,8 @@ interface IGiftcodeService {
   update(id: number, updateDto: IGiftcodeUpdateDto): Promise<UpdateResult>;
   findByCode(code: string): Promise<number>;
   list(paged: number, pageSize: number, keyword?: string);
+  getByCode(code: string): Promise<GiftcodeEntity>;
+  updateTimes(id: number ):Promise<UpdateResult>;
 }
 
 @Injectable()
@@ -20,13 +22,34 @@ export class GiftcodeService implements IGiftcodeService {
     private giftcodeRepo: Repository<GiftcodeEntity>,
   ) {}
 
+  updateTimes(id: number): Promise<UpdateResult> {
+    return this.giftcodeRepo.update(
+      {
+        id: id,
+      },
+      {
+        times: () => `times - 1`,
+      }
+    );
+  }
+
+  async getByCode(code: string): Promise<GiftcodeEntity> {
+    const g = await this.giftcodeRepo.find({
+      where: {
+        code: code
+      }
+    });
+
+    return g[0];
+  }
+
   async list(paged = 1, pageSize = 12, keyword?: string) {
     let subSql = `SELECT ROW_NUMBER() OVER(ORDER BY id DESC) AS Numero, * FROM giftcodes`;
     
     const wheres: string[] = [];
 
     if (keyword != '' && keyword) {
-        wheres.push('username LIKE @2');
+        wheres.push('code LIKE @2');
       }
 
       if (wheres.length > 0) {

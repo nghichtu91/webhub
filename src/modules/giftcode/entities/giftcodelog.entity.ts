@@ -1,5 +1,5 @@
 import { IBaseModel } from "@shared";
-import { BaseEntity, Column, CreateDateColumn, Entity, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, BeforeInsert, Column, CreateDateColumn, Entity, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 import { IGiftcodeLogModel } from "../dtos/giftcodelogs.model";
 
 @Entity({ name: 'giftcodelogs' })
@@ -22,4 +22,9 @@ export class GiftcodeLogEnity extends BaseEntity implements IBaseModel<IGiftcode
         type: "datetime",
     })
     createAt: Date;
+
+    @BeforeInsert()
+    beforeinsert() {
+        this.createAt = new Date();
+    }
 }

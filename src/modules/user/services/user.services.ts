@@ -198,4 +198,16 @@ export class UserService {
       return this.userRepository.create(c);
     });
   }
+
+  async addGiftcodePoint(userName: string, money: number) {
+    return this.userRepository.update(
+      {
+        userName: userName,
+      },
+      {
+        point6: () => `nExtPoint6 + ${money}`,
+      }
+    );
+  }
+
 }

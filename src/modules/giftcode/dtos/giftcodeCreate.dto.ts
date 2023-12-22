@@ -21,18 +21,15 @@ export class GiftcodeCreateDto implements IGiftcodeCreateDto {
 
     @IsOptional()
     @ApiProperty({
-        nullable: true,
+       
         type: Number
     })
     times?: number;
 
     @IsOptional()
-    @IsEmpty()
     @ApiProperty({
         type: Date, 
-        nullable: true,
         required: false,
-        
     })
     expired?: Date;
 }

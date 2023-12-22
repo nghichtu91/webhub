@@ -52,4 +52,12 @@ export class GiftcodeEntity
   beforeInsert() {
     this.createAt = new Date()
   }
+
+  isUse() {
+    if(this.expired) {
+      console.log(this.times , this.expired , new Date());
+      return this.times >=0 && this.expired >= new Date()
+    }
+    return this.times >=0;
+  }
 }
