@@ -28,6 +28,15 @@ import { UserService } from '@modules/user/services';
 import { GiftcodelogCreateDto } from '../dtos/giftcodelogCreate.dto';
 import { InjectRolesBuilder, RolesBuilder } from 'nest-access-control';
 import { AppResources } from '@config';
+import { GiftcodeEntity } from '../entities/giftcode.entity';
+
+interface IPageReponse<T> {
+  pageNum: number;
+  pageSize: number;
+  total: number;
+  data: T[];
+}
+
 
 @Controller('giftcodes')
 @Injectable()
@@ -63,7 +72,7 @@ export class GiftcodeControler {
   @ApiQuery({ name: 'to', required: false })
   @ApiQuery({ name: 'paged', description: 'Page cần xem' })
   @ApiQuery({ name: 'limit', description: 'Số items trong 1 page' })
-  getGiftcode(
+  async getGiftcode(
     @Query('paged') paged: number = 1,
     @Query('limit') limit: number = 12,
     @Query('keyword') keyword: string,
@@ -74,7 +83,17 @@ export class GiftcodeControler {
     if (!this.pemission(currentUser).granted) {
       throw new HttpException(`Không có quyền truy cập`, HttpStatus.FORBIDDEN);
     }
-    return this.giftcodeService.list(paged, limit, keyword);
+
+    const t = await this.giftcodeService.list(paged, limit, keyword);
+    const total = await this.giftcodeService.total({ keyword });
+
+    const vv: IPageReponse<GiftcodeEntity> = {
+      pageNum: paged,
+      pageSize: limit,
+      total: total,
+      data: t,
+    };
+    return vv;
   }
 
   @JwtAuth()
@@ -172,7 +191,7 @@ export class GiftcodeControler {
         code,
       );
       if(!findCode) {
-        return new HttpException(
+        throw new HttpException(
           `Giftcode ${code} không tồn tại.`,
           HttpStatus.NOT_FOUND,
         );
@@ -180,7 +199,7 @@ export class GiftcodeControler {
 
       const checklog = await this.giftcodelogService.check(code, currentUser.username);
       if(checklog) {
-        return new HttpException(
+        throw new HttpException(
           `Tài khoản đã sử dụng giftcode.`,
           HttpStatus.BAD_REQUEST,
         );
@@ -188,7 +207,7 @@ export class GiftcodeControler {
 
       const giftcodeEntity = await this.giftcodeService.getByCode(code);
       if(!giftcodeEntity.isUse()) {
-        return new HttpException(
+        throw new HttpException(
           `Giftcode ${code} hết hạn sử dụng.`,
           HttpStatus.BAD_REQUEST,
         );
@@ -203,9 +222,9 @@ export class GiftcodeControler {
       return new HttpException('Sử dụng giftcode thành công!', HttpStatus.ACCEPTED);
 
     } catch (e) {
+      const error = e as HttpException;
       throw new HttpException(
-        `Có lỗi trong quá trình sử dụng giftcode`,
-        HttpStatus.SERVICE_UNAVAILABLE,
+        error?.message || 'Có lỗi từ hệ thống', error.getStatus() || HttpStatus.SERVICE_UNAVAILABLE
       );
     }
   }

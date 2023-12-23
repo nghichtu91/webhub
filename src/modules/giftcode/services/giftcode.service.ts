@@ -1,9 +1,10 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { GiftcodeEntity } from '../entities/giftcode.entity';
-import { Repository, DeleteResult, Equal, UpdateResult } from 'typeorm';
+import { Repository, DeleteResult, Equal, UpdateResult, Like } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { IGiftcodeCreateDto } from '@modules/giftcode/dtos/giftcodeCreate.dto';
 import { IGiftcodeUpdateDto } from '../dtos/giftcodeUpdate.dto';
+import { ISearchPaymentParams } from '@modules/payment/dtos';
 
 interface IGiftcodeService {
   create(createDto: IGiftcodeCreateDto): Promise<GiftcodeEntity>;
@@ -105,4 +106,18 @@ export class GiftcodeService implements IGiftcodeService {
     const giftcode = this.giftcodeRepo.create(createDto);
     return this.giftcodeRepo.save(giftcode);
   }
+
+  async total(filter: ISearchPaymentParams): Promise<number> {
+    const { keyword = '' } = filter;
+    const where: any = {};
+
+    if (keyword !== '' && keyword) {
+      where.code = Like(`%${keyword}%`);
+    }
+
+    return await this.giftcodeRepo.count({
+      where: where,
+    });
+  }
+
 }
