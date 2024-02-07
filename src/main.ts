@@ -2,6 +2,7 @@ import path from "path";
 import * as dotenv from "dotenv";
 
 const NODEENV = process.env.NODE_ENV || "development";
+console.log(NODEENV);
 
 // setup env
 if (NODEENV === "production") {
