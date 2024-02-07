@@ -7,7 +7,6 @@ const NODEENV = process.env.NODE_ENV || "development";
 if (NODEENV === "production") {
   dotenv.config({ path: path.resolve(process.cwd(), ".env"), override: true });
   console.log( path.resolve(process.cwd(), ".env"));
-  
 } else {
   dotenv.config({
     path: path.resolve(process.cwd(), `.env.${NODEENV}`),
