@@ -9,6 +9,7 @@ interface IGiftcodelogService {
     delete(id: number): Promise<DeleteResult>
     list(paged: number, pageSize: number, keyword?: string);
     check(code: string, username: string): Promise<boolean>;
+    checkCat(code: string, username: string): Promise<boolean>;
 }
 
 @Injectable()
@@ -24,7 +25,16 @@ export class GiftcodelogService implements IGiftcodelogService {
         const t = await this.giftcodelogRepo.count({
             where: {
                 code: Equal(code),
+            }
+        });
+        return t > 0;
+    }
+
+    async checkCat(username: string, cat: string) {
+        const t = await this.giftcodelogRepo.count({
+            where: {
                 username: Equal(username),
+                cat: Equal(cat),
             }
         });
         return t > 0;

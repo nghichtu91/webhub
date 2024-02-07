@@ -102,25 +102,18 @@ export class GiftcodeControler {
     summary: 'Tạo gift code',
   })
   @ApiBody({ type: GiftcodeCreateDto })
-  async createGiftcode(@User() currentUser: ReqUser, @Body() giftcodeCreate: GiftcodeCreateDto) {
+  async createGiftcode(@User() currentUser: ReqUser, @Body() giftcodeCreateDto: GiftcodeCreateDto) {
 
     if (!this.pemission(currentUser).granted) {
       throw new HttpException(`Không có quyền truy cập`, HttpStatus.FORBIDDEN);
     }
 
     try {
-      const findCode = await this.giftcodeService.findByCode(
-        giftcodeCreate.code,
-      );
-      if (findCode) {
-        return new HttpException(
-          `Giftcode ${giftcodeCreate.code} đã tồn tại!`,
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-      await this.giftcodeService.create(giftcodeCreate);
+      
+      await this.giftcodeService.createRandom(giftcodeCreateDto);
+
       return new HttpException(
-        `Giftcode ${giftcodeCreate.code} tạo thành công.`,
+        `Tạo Giftcode thành công.`,
         HttpStatus.CREATED,
       );
     } catch (e) {
@@ -187,9 +180,10 @@ export class GiftcodeControler {
   @Post('using')
   async useGiftcode(@User() currentUser: ReqUser, @Query('code') code: string) {
     try {
-      const findCode = await this.giftcodeService.findByCode(
+      const findCode = await this.giftcodeService.getByCode(
         code,
       );
+
       if(!findCode) {
         throw new HttpException(
           `Giftcode ${code} không tồn tại.`,
@@ -197,15 +191,26 @@ export class GiftcodeControler {
         );
       }
 
+      const cat = findCode.category;
+
       const checklog = await this.giftcodelogService.check(code, currentUser.username);
+
       if(checklog) {
         throw new HttpException(
-          `Tài khoản đã sử dụng giftcode.`,
+          `Giftcode đã sử dụng.`,
           HttpStatus.BAD_REQUEST,
         );
       }
+      const checkGiftcodeCat = await this.giftcodelogService.checkCat(currentUser.username, cat);
 
+      if(checkGiftcodeCat) {
+        throw new HttpException(
+          `Tài khoản đã sử dụng giftcode thuộc loại này rồi.`,
+          HttpStatus.BAD_REQUEST,
+        );
+      }
       const giftcodeEntity = await this.giftcodeService.getByCode(code);
+
       if(!giftcodeEntity.isUse()) {
         throw new HttpException(
           `Giftcode ${code} hết hạn sử dụng.`,
@@ -214,8 +219,9 @@ export class GiftcodeControler {
       }
       
       await this.userService.addGiftcodePoint(currentUser.username, giftcodeEntity.value);
-      const giftcodelog = new GiftcodelogCreateDto(giftcodeEntity, currentUser.username);
+      const giftcodelog = new GiftcodelogCreateDto(giftcodeEntity, currentUser.username, cat);
       await this.giftcodelogService.create(giftcodelog);
+
       if(giftcodeEntity.times > 0 ) {
         await this.giftcodeService.updateTimes(giftcodeEntity.id);
       }

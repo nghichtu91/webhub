@@ -4,6 +4,7 @@ export interface IGiftcodeLogModel {
     value: number;
     code: string;
     createAt: Date;
+    cat?: string;
 }
 
 export class GiftcodeLogModel implements IGiftcodeLogModel {
@@ -12,4 +13,5 @@ export class GiftcodeLogModel implements IGiftcodeLogModel {
     value: number;
     code: string;
     createAt: Date;
+    cat?: string;
 }

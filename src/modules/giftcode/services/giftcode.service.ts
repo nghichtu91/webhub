@@ -1,10 +1,12 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { GiftcodeEntity } from '../entities/giftcode.entity';
-import { Repository, DeleteResult, Equal, UpdateResult, Like } from 'typeorm';
+import { Repository, DeleteResult, Equal, UpdateResult, Like, InsertResult, MoreThanOrEqual } from 'typeorm';
 import { Injectable } from '@nestjs/common';
-import { IGiftcodeCreateDto } from '@modules/giftcode/dtos/giftcodeCreate.dto';
+import { GiftcodeCreateDto, IGiftcodeCreateDto } from '@modules/giftcode/dtos/giftcodeCreate.dto';
 import { IGiftcodeUpdateDto } from '../dtos/giftcodeUpdate.dto';
 import { ISearchPaymentParams } from '@modules/payment/dtos';
+import randomgift from 'randomstring';
+
 
 interface IGiftcodeService {
   create(createDto: IGiftcodeCreateDto): Promise<GiftcodeEntity>;
@@ -14,6 +16,7 @@ interface IGiftcodeService {
   list(paged: number, pageSize: number, keyword?: string);
   getByCode(code: string): Promise<GiftcodeEntity>;
   updateTimes(id: number ):Promise<UpdateResult>;
+  createRandom(createDto: GiftcodeCreateDto): Promise<InsertResult>;
 }
 
 @Injectable()
@@ -52,6 +55,8 @@ export class GiftcodeService implements IGiftcodeService {
     if (keyword != '' && keyword) {
         wheres.push('code LIKE @2');
       }
+
+      wheres.push('times > 0');
 
       if (wheres.length > 0) {
         subSql = `${subSql} WHERE ${wheres.join(' AND ')}`;
@@ -107,6 +112,35 @@ export class GiftcodeService implements IGiftcodeService {
     return this.giftcodeRepo.save(giftcode);
   }
 
+  /**
+   * @description create giftcode
+   * @version v1.0.0.1
+   * @author nhatthanh5891@gmail.com
+   * @param {IGiftcodeCreateDto} createDto
+   * @returns {Promise<GiftcodeEntity>}
+   */
+  createRandom({nums, value, cat }: GiftcodeCreateDto): Promise<InsertResult> {
+    var giftcodes = []; 
+    for(var i=0;  i <nums;  i++) {
+
+      const gfRandom = randomgift.generate({
+        length: 12,
+        capitalization: 'lowercase'
+      })
+
+      const giftcodeEntity = this.giftcodeRepo.create({
+        code: gfRandom,
+        value: value, 
+        times: 1,
+        category: cat
+      });
+
+      giftcodes.push(giftcodeEntity);
+    }
+
+    return this.giftcodeRepo.insert(giftcodes);
+  }
+
   async total(filter: ISearchPaymentParams): Promise<number> {
     const { keyword = '' } = filter;
     const where: any = {};
@@ -114,6 +148,8 @@ export class GiftcodeService implements IGiftcodeService {
     if (keyword !== '' && keyword) {
       where.code = Like(`%${keyword}%`);
     }
+
+    where.times = MoreThanOrEqual(1);
 
     return await this.giftcodeRepo.count({
       where: where,

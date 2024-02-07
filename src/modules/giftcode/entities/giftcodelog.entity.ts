@@ -17,6 +17,9 @@ export class GiftcodeLogEnity extends BaseEntity implements IBaseModel<IGiftcode
     @Column({ type: 'varchar' })
     code: string;
 
+    @Column({ type: 'varchar' })
+    cat: string;
+
     @CreateDateColumn({
         nullable: true,
         type: "datetime",
