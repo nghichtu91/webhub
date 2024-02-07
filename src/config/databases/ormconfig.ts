@@ -15,6 +15,8 @@ import {
 import { UserEntity, UserPlayTimeEntity } from '@modules/user/entities';
 import { PaymentEntity } from '@modules/payment/entities';
 import { SmsEntity } from '@modules/sms/entities/sms.entity';
+import { GiftcodeLogEnity } from '@modules/giftcode/entities/giftcodelog.entity';
+import { GiftcodeEntity } from '@modules/giftcode/entities/giftcode.entity';
 
 export default {
   type: databaseType,
@@ -30,7 +32,7 @@ export default {
   cache: databaseEnableCache
     ? { duration: parseDuration(databaseCacheDuration) }
     : false,
-  entities: [UserEntity, UserPlayTimeEntity, PaymentEntity, SmsEntity],
+  entities: [UserEntity, UserPlayTimeEntity, PaymentEntity, SmsEntity, GiftcodeLogEnity, GiftcodeEntity],
   options: {
     encrypt: false,
   },

@@ -187,6 +187,33 @@ export class UserController {
           },
         ],
       },
+      {
+        code: "giftcodes",
+        label: {
+          zh_CN: "组件",
+          en_US: "Giftcode",
+        },
+        icon: "payment",
+        path: "/giftcodes",
+        children: [
+          {
+            code: "giftcodes",
+            label: {
+              zh_CN: "Nạp thẻ",
+              en_US: "Sử dụng Giftcode",
+            },
+            path: "/giftcodes",
+          },
+          // {
+          //   code: "giftcode-histories",
+          //   label: {
+          //     zh_CN: "Lịch sử nạp",
+          //     en_US: "Lịch sử suw",
+          //   },
+          //   path: "/giftcodes/histories",
+          // },
+        ],
+      },
     ];
     let h = [];
     const permission = new AppPermissionBuilder()
@@ -223,6 +250,14 @@ export class UserController {
                 en_US: "Lịch sử nạp thẻ",
               },
             },
+            {
+              path: "/admin/giftcodes",
+              label: {
+                zh_CN: "Admin",
+                en_US: "Danh sách giftcode",
+              },
+            },
+
           ],
         },
       ].concat(h);

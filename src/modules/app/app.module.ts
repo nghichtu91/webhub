@@ -14,7 +14,8 @@ import ormconfig from '@config/databases/ormconfig';
 import { AppController } from '@modules/app/controllers/app.controller';
 import { AppService } from '@modules/app/services';
 import { SmsModule } from '@modules/sms/sms.module';
-
+// giftcode 
+import { GiftcodeModule } from '@modules/giftcode/giftcode.module'
 @Module({
   imports: [
     ThrottlerModule.forRoot({
@@ -28,6 +29,7 @@ import { SmsModule } from '@modules/sms/sms.module';
     PaymentModule,
     UsersModule,
     SmsModule,
+    GiftcodeModule,
     CommonModule,
   ],
   controllers: [AppController],
