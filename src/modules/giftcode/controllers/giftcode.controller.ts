@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Header,
   HttpException,
   HttpStatus,
   Injectable,
@@ -11,6 +12,9 @@ import {
   Post,
   Put,
   Query,
+  Res,
+  StreamableFile,
+  
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -30,6 +34,9 @@ import { InjectRolesBuilder, RolesBuilder } from 'nest-access-control';
 import { AppResources } from '@config';
 import { GiftcodeEntity } from '../entities/giftcode.entity';
 import { GiftcodeLogEnity } from '../entities/giftcodelog.entity';
+import { createReadStream , writeFile, writeFileSync} from 'fs';
+import { join } from 'path';
+import os from 'os';
 
 interface IPageReponse<T> {
   pageNum: number;
@@ -108,7 +115,6 @@ export class GiftcodeControler {
       total: total,
       data: t,
     };
-
     return vv;
   }
 
@@ -268,4 +274,53 @@ export class GiftcodeControler {
     return this.giftcodelogService.list(paged, limit, keyword);
   }
   //#endregion
+
+  @Get("export")
+
+  @Header('Content-Type', 'text/plain')
+   @Header('Content-Disposition', 'attachment; filename="giftcode.txt"')
+
+  @ApiQuery({ name: 'keyword', required: false })
+  @ApiQuery({ name: 'form', required: false })
+  @ApiQuery({ name: 'to', required: false })
+  @ApiQuery({ name: 'type', required: false })
+  @ApiQuery({ name: 'cat', required: false })
+  @ApiQuery({ name: 'paged', description: 'Page cần xem' })
+  @ApiQuery({ name: 'limit', description: 'Số items trong 1 page' })
+  async exportGiftcode(
+    @Query('paged') paged: number = 1,
+    @Query('limit') limit: number = 12,
+    @Query('keyword') keyword: string,
+    @Query('to') to: string,
+    @Query('form') form: string,
+    @Query('type') type: string,
+    @Query('cat') cat: string,
+     
+  ) {
+    
+
+    const filename = `${new Date().getTime().toString()}.txt`;
+    const pathFile = join(process.cwd(), "files", filename);
+  
+    try {
+      const t = await this.giftcodeService.list(paged, limit, keyword, cat) as GiftcodeEntity[];
+      if(t.length === 0) return "không có giftcode";
+
+      let data = "" + os.EOL;
+      t.map(async (g: GiftcodeEntity) => {
+        data = data + g.code + os.EOL;
+      });
+
+      writeFileSync(pathFile, data);
+      const filedownload = createReadStream(pathFile);
+      return new StreamableFile(filedownload);
+
+    } catch(e) {
+      console.log(e);
+      return "Có lỗi rồi";
+    }
+  }
+
 }
+
+
