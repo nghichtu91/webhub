@@ -15,7 +15,7 @@ interface IGiftcodeService {
   findByCode(code: string): Promise<number>;
   list(paged: number, pageSize: number, keyword?: string);
   getByCode(code: string): Promise<GiftcodeEntity>;
-  updateTimes(id: number ):Promise<UpdateResult>;
+  updateTimes(id: number): Promise<UpdateResult>;
   createRandom(createDto: GiftcodeCreateDto): Promise<InsertResult>;
 }
 
@@ -24,7 +24,7 @@ export class GiftcodeService implements IGiftcodeService {
   constructor(
     @InjectRepository(GiftcodeEntity)
     private giftcodeRepo: Repository<GiftcodeEntity>,
-  ) {}
+  ) { }
 
   updateTimes(id: number): Promise<UpdateResult> {
     return this.giftcodeRepo.update(
@@ -47,34 +47,39 @@ export class GiftcodeService implements IGiftcodeService {
     return g[0];
   }
 
-  async list(paged = 1, pageSize = 12, keyword?: string) {
+  async list(paged = 1, pageSize = 12, keyword?: string, cat?: string) {
     let subSql = `SELECT ROW_NUMBER() OVER(ORDER BY id DESC) AS Numero, * FROM giftcodes`;
-    
+
     const wheres: string[] = [];
 
     if (keyword != '' && keyword) {
-        wheres.push('code LIKE @2');
-      }
+      wheres.push('code LIKE @2');
+    }
 
-      wheres.push('times > 0');
+    if (cat != '' && cat) {
+      wheres.push('category LIKE @3');
+    }
 
-      if (wheres.length > 0) {
-        subSql = `${subSql} WHERE ${wheres.join(' AND ')}`;
-      }
+    wheres.push('times > 0');
+
+    if (wheres.length > 0) {
+      subSql = `${subSql} WHERE ${wheres.join(' AND ')}`;
+    }
 
     const sql = `SELECT id, code, category, value, createAt, times, expired, updateAt FROM (${subSql}) AS TBL
                 WHERE Numero BETWEEN ((@0 - 1) * @1 + 1) AND (@0 * @1) 
             ORDER BY id DESC`;
 
     const s = await this.giftcodeRepo
-          .query(sql, [
-              paged,
-              pageSize,
-              keyword ? `%${keyword}%` : '',
-          ]);
-      return s.map((c) => {
-          return this.giftcodeRepo.create(c);
-      });
+      .query(sql, [
+        paged,
+        pageSize,
+        keyword ? `%${keyword}%` : '',
+        cat ? `%${cat}%` : '',
+      ]);
+    return s.map((c) => {
+      return this.giftcodeRepo.create(c);
+    });
   }
 
   findByCode(code: string) {
@@ -119,9 +124,9 @@ export class GiftcodeService implements IGiftcodeService {
    * @param {IGiftcodeCreateDto} createDto
    * @returns {Promise<GiftcodeEntity>}
    */
-  createRandom({nums, value, cat }: GiftcodeCreateDto): Promise<InsertResult> {
-    var giftcodes = []; 
-    for(var i=0;  i <nums;  i++) {
+  createRandom({ nums, value, cat }: GiftcodeCreateDto): Promise<InsertResult> {
+    var giftcodes = [];
+    for (var i = 0; i < nums; i++) {
 
       const gfRandom = randomgift.generate({
         length: 12,
@@ -130,7 +135,7 @@ export class GiftcodeService implements IGiftcodeService {
 
       const giftcodeEntity = this.giftcodeRepo.create({
         code: gfRandom,
-        value: value, 
+        value: value,
         times: 1,
         category: cat
       });
@@ -142,11 +147,15 @@ export class GiftcodeService implements IGiftcodeService {
   }
 
   async total(filter: ISearchPaymentParams): Promise<number> {
-    const { keyword = '' } = filter;
+    const { keyword = '', cat = '' } = filter;
     const where: any = {};
 
     if (keyword !== '' && keyword) {
       where.code = Like(`%${keyword}%`);
+    }
+
+    if (cat !== '' && cat) {
+      where.category = Like(`%${cat}%`);
     }
 
     where.times = MoreThanOrEqual(1);

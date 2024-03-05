@@ -254,10 +254,17 @@ export class UserController {
               path: "/admin/giftcodes",
               label: {
                 zh_CN: "Admin",
-                en_US: "Danh sách giftcode",
+                en_US: "Giftcodes",
               },
+            
             },
-
+            {
+              path: "/admin/giftcodes/logs",
+              label: {
+                zh_CN: "Admin",
+                en_US: "Lịch sử dụng Giftcodes",
+              },
+            }
           ],
         },
       ].concat(h);

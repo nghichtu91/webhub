@@ -5,4 +5,5 @@ export interface ISearchPaymentParams {
   limit?: number;
   status?: number;
   paged?: number;
+  cat?: string;
 }

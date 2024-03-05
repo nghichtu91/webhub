@@ -29,6 +29,7 @@ import { GiftcodelogCreateDto } from '../dtos/giftcodelogCreate.dto';
 import { InjectRolesBuilder, RolesBuilder } from 'nest-access-control';
 import { AppResources } from '@config';
 import { GiftcodeEntity } from '../entities/giftcode.entity';
+import { GiftcodeLogEnity } from '../entities/giftcodelog.entity';
 
 interface IPageReponse<T> {
   pageNum: number;
@@ -78,14 +79,28 @@ export class GiftcodeControler {
     @Query('keyword') keyword: string,
     @Query('to') to: string,
     @Query('form') form: string,
+    @Query('type') type: string,
+    @Query('cat') cat: string,
     @User() currentUser: ReqUser,
   ) {
     if (!this.pemission(currentUser).granted) {
       throw new HttpException(`Không có quyền truy cập`, HttpStatus.FORBIDDEN);
     }
 
-    const t = await this.giftcodeService.list(paged, limit, keyword);
-    const total = await this.giftcodeService.total({ keyword });
+    if(type=== 'logs') {
+      const t = await this.giftcodelogService.list(paged, limit, keyword);
+      const total = await this.giftcodelogService.total({ keyword });
+      const vv: IPageReponse<GiftcodeLogEnity> = {
+        pageNum: paged,
+        pageSize: limit,
+        total: total,
+        data: t,
+      };
+      return vv
+    }
+
+    const t = await this.giftcodeService.list(paged, limit, keyword, cat);
+    const total = await this.giftcodeService.total({ keyword, cat });
 
     const vv: IPageReponse<GiftcodeEntity> = {
       pageNum: paged,
@@ -93,6 +108,7 @@ export class GiftcodeControler {
       total: total,
       data: t,
     };
+
     return vv;
   }
 

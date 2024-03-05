@@ -1,8 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { DeleteResult, Equal, Repository } from "typeorm";
+import { DeleteResult, Equal, Like, MoreThanOrEqual, Repository } from "typeorm";
 import { GiftcodeLogEnity } from "../entities/giftcodelog.entity";
 import { IGiftcodelogCreateDto } from "../dtos/giftcodelogCreate.dto";
+import { ISearchPaymentParams } from "@modules/payment/dtos";
 
 interface IGiftcodelogService {
     create(createDto: IGiftcodelogCreateDto): Promise<GiftcodeLogEnity>;
@@ -53,7 +54,7 @@ export class GiftcodelogService implements IGiftcodelogService {
         subSql = `${subSql} WHERE ${wheres.join(' AND ')}`;
       }
 
-    const sql = `SELECT id, code, value, createAt, username FROM (${subSql}) AS TBL
+    const sql = `SELECT id, cat, code, value, createAt, username FROM (${subSql}) AS TBL
                 WHERE Numero BETWEEN ((@0 - 1) * @1 + 1) AND (@0 * @1) 
             ORDER BY id DESC`;
 
@@ -77,4 +78,16 @@ export class GiftcodelogService implements IGiftcodelogService {
         return this.giftcodelogRepo.save(giftcodelogs);
     } 
 
+    async total(filter: ISearchPaymentParams): Promise<number> {
+        const { keyword = '' } = filter;
+        const where: any = {};
+    
+        if (keyword !== '' && keyword) {
+          where.code = Like(`%${keyword}%`);
+        }
+    
+        return await this.giftcodelogRepo.count({
+          where: where,
+        });
+      }
 }
