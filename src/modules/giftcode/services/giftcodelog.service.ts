@@ -47,7 +47,7 @@ export class GiftcodelogService implements IGiftcodelogService {
     const wheres: string[] = [];
 
     if (keyword != '' && keyword) {
-        wheres.push('username LIKE @2');
+        wheres.push('code LIKE @2');
       }
 
       if (wheres.length > 0) {
